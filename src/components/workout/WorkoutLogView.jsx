@@ -251,7 +251,7 @@ export default function WorkoutLogView() {
   const [showPicker, setShowPicker] = useState(false);
   const [tutorialFor, setTutorialFor] = useState(null);
 
-  /** Tutorial content lives on the Exercises sheet, matched by name. */
+  /** Tutorial content lives on the exercises table, matched by name. */
   const exerciseByName = Object.fromEntries(exercises.map((e) => [e.name, e]));
   const hasTutorial = (name) => {
     const e = exerciseByName[name];
@@ -302,7 +302,7 @@ export default function WorkoutLogView() {
         </div>
       )}
 
-      {/* Streak + this week, driven by the Schedule sheet */}
+      {/* Streak + this week, driven by the schedule */}
       <StreakCard streak={streak} weekStrip={weekStrip} />
 
       {/* Session selector — scrolls rather than wrapping, keeping the header a fixed height */}

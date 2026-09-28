@@ -28,7 +28,7 @@ export function addDays(dateStr, n) {
   return toDateStr(d);
 }
 
-/** Rows from the Schedule sheet keyed by weekday name. */
+/** Schedule rows keyed by weekday name. */
 export function buildScheduleMap(rows) {
   const map = {};
   (rows || []).forEach((r) => {
@@ -46,7 +46,7 @@ export function buildScheduleMap(rows) {
 
 /**
  * What the plan says for a given date. Days with no schedule row are treated
- * as rest so an incomplete Schedule sheet can never silently break a streak.
+ * as rest so an incomplete schedule can never silently break a streak.
  */
 export function getPlanFor(dateStr, scheduleMap) {
   const dayName = DAY_NAMES[parseDateStr(dateStr).getDay()];

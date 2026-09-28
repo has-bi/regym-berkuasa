@@ -3,10 +3,9 @@
  * 12 October and merely *displays* it as "10-12", so the sheet looks correct
  * while the API returns "2026-10-12".
  *
- * The sheet-side fix is to format the column as plain text (see
- * repairProgramSheet in google-apps-script.js). This function is the client
- * side of that defence, so a row entered before the repair — or into a fresh
- * column that lost its formatting — still renders as a rep range.
+ * Postgres settles this for good: programs.target_reps is TEXT, so the
+ * coercion cannot happen again. This is kept for rows that were migrated out
+ * of the spreadsheet already carrying a date.
  */
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})(?:[T\s].*)?$/;

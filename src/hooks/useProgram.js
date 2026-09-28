@@ -2,12 +2,15 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { fetchBundle, deserializeBundle } from "@/actions/data";
 
-/** Fallback only — real session names come from the Sheet. */
+/** Fallback only — real session names come from the database. */
 export const SESSIONS = ["Upper A", "Lower A", "Upper B", "Lower B", "Kondisioning"];
 
 /**
- * Read-only view of the program. Editing happens in the Google Sheet, so this
- * hook deliberately exposes no mutations.
+ * Read-only view of the program.
+ *
+ * Nothing edits programs, schedule or exercises yet — the spreadsheet used to
+ * be that surface and no longer is, so those tables are changed with SQL for
+ * now. This hook exposes no mutations because none exist, not by design.
  */
 export function useProgram() {
   const [programs, setPrograms] = useState([]);

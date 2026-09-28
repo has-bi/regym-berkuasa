@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { workoutApi, fetchBundle, deserializeBundle } from "@/actions/data";
 import { buildScheduleMap, computeStreak, recentDays } from "@/lib/streak";
 
-/** Fallback only — the real list comes from whatever sessions the Sheet defines. */
+/** Fallback only — the real list comes from whatever sessions the data defines. */
 export const SESSIONS = ["Upper A", "Lower A", "Upper B", "Lower B", "Kondisioning"];
 
 function getLocalToday() {
@@ -67,7 +67,7 @@ export function useWorkoutLog() {
     [logs, scheduleMap, today]
   );
 
-  /** Session names come from the Sheet, falling back to the built-in split. */
+  /** Session names come from the data, falling back to the built-in split. */
   const sessions = useMemo(() => {
     const fromSheet = [
       ...new Set([
@@ -79,8 +79,8 @@ export function useWorkoutLog() {
   }, [schedule, programs]);
 
   /**
-   * Today's session comes from the Schedule sheet rather than a rotation
-   * guess, so the app opens on whatever the plan actually says.
+   * Today's session comes from the schedule rather than a rotation guess, so
+   * the app opens on whatever the plan actually says.
    */
   const suggestedSession = useMemo(() => {
     if (streak.todayPlan?.session && !streak.todayPlan.isRest) {
@@ -346,7 +346,7 @@ export function useWorkoutLog() {
       try {
         await workoutApi.update(id, { weight, reps, rpe: rpe || null });
       } catch (err) {
-        // Put the old values back rather than leaving the UI ahead of the sheet.
+        // Put the old values back rather than leaving the UI ahead of the database.
         setLogs((prev) =>
           prev.map((l) =>
             l._id === id
