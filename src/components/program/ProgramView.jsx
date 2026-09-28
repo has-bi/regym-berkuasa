@@ -3,10 +3,7 @@ import { useState, useMemo } from "react";
 import { useProgram } from "@/hooks/useProgram";
 import TutorialSheet from "@/components/workout/TutorialSheet";
 import { DAY_NAMES, buildScheduleMap } from "@/lib/streak";
-import { FiAlertCircle, FiHelpCircle, FiExternalLink, FiCalendar } from "react-icons/fi";
-
-const SHEET_URL =
-  "https://docs.google.com/spreadsheets/d/1KeDvjqh_vf73zVw7xKlCAuAQYuXI-QKzsfOPrVkbYqk/edit";
+import { FiAlertCircle, FiHelpCircle, FiCalendar } from "react-icons/fi";
 
 /** Monday-first for reading order; DAY_NAMES itself is Sunday-indexed. */
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0].map((i) => DAY_NAMES[i]);
@@ -159,8 +156,7 @@ export default function ProgramView() {
               <div className="card p-8 text-center">
                 <p className="text-sm font-medium text-ink mb-1">Sesi {selected} masih kosong</p>
                 <p className="text-sm text-ink-muted">
-                  Tambahin barisnya di sheet <span className="font-medium text-ink">Programs</span>{" "}
-                  dengan session <span className="font-medium text-ink">{selected}</span>.
+                  Belum ada gerakan yang terdaftar buat sesi ini.
                 </p>
               </div>
             )}
@@ -201,16 +197,6 @@ export default function ProgramView() {
           </p>
         </div>
       )}
-
-      <a
-        href={SHEET_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn btn-secondary btn-md w-full"
-      >
-        Atur di Google Sheet
-        <FiExternalLink size={14} className="text-ink-faint" />
-      </a>
 
       {tutorialFor && (
         <TutorialSheet

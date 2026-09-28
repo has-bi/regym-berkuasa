@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { bodyApi, fetchBundle, deserializeBundle } from "@/actions/sheets";
+import { bodyApi, fetchBundle, deserializeBundle } from "@/actions/data";
 
 function calcBMI(weight, height) {
   if (!weight || !height) return 0;
@@ -43,15 +43,15 @@ export function useBodyMetrics() {
         globalThis.crypto?.randomUUID?.() ??
         `c_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
       date: date || getLocalToday(),
-      weight: String(weight),
-      waist: String(waist),
-      height: String(height || 173),
-      bmi: String(bmi),
+      weight: parseFloat(weight) || 0,
+      waist: parseFloat(waist) || 0,
+      height: parseFloat(height) || 173,
+      bmi,
     };
+    // The row is returned as { id, duplicate }; a duplicate still means the
+    // measurement is stored, so both cases refresh.
     const result = await bodyApi.add(payload);
-    if (result.success) {
-      await fetchMetrics();
-    }
+    await fetchMetrics();
     return result;
   };
 

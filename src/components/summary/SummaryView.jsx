@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { fetchBundle, deserializeBundle } from "@/actions/sheets";
+import { fetchBundle, deserializeBundle } from "@/actions/data";
 import LineChart from "@/components/ui/LineChart";
 import { FiAward, FiAlertCircle } from "react-icons/fi";
 

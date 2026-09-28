@@ -1,6 +1,11 @@
 /**
  * Latihan — Google Apps Script Web App
  *
+ * MIGRATION SOURCE ONLY. The app reads and writes Postgres now; this file
+ * exists so scripts/migrate-sheets-to-pg.mjs can drain the sheet. Once the
+ * migration has run and the data is verified, the deployment and this file
+ * can go.
+ *
  * Setup:
  * 1. Open your Google Sheet → Extensions → Apps Script
  * 2. Paste this entire file, replacing what's there

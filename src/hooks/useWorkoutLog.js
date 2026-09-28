@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { workoutApi, fetchBundle, deserializeBundle } from "@/actions/sheets";
+import { workoutApi, fetchBundle, deserializeBundle } from "@/actions/data";
 import { buildScheduleMap, computeStreak, recentDays } from "@/lib/streak";
 
 /** Fallback only — the real list comes from whatever sessions the Sheet defines. */
@@ -275,7 +275,7 @@ export function useWorkoutLog() {
       const result = await workoutApi.add(payload);
       setLogs((prev) =>
         prev.map((l) =>
-          l._id === tempId ? { ...l, _id: result._id, _status: undefined, _payload: undefined } : l
+          l._id === tempId ? { ...l, _id: result.id, _status: undefined, _payload: undefined } : l
         )
       );
       return true;
@@ -293,14 +293,16 @@ export function useWorkoutLog() {
     async (exerciseName, weight, reps, rpe, notes = "") => {
       const existing = todayByExercise[exerciseName] || [];
       const setNumber = existing.length + 1;
+      // Numbers stay numbers: the columns are numeric/integer, so stringifying
+      // them was only ever a Sheets habit.
       const payload = {
         date: today,
         session: activeSession,
         exercise_name: exerciseName,
-        set_number: String(setNumber),
-        weight: String(weight),
-        reps: String(reps),
-        rpe: String(rpe),
+        set_number: setNumber,
+        weight,
+        reps,
+        rpe: rpe || null,
         notes,
       };
 
@@ -342,11 +344,7 @@ export function useWorkoutLog() {
       );
 
       try {
-        await workoutApi.update(id, {
-          weight: String(weight),
-          reps: String(reps),
-          rpe: String(rpe),
-        });
+        await workoutApi.update(id, { weight, reps, rpe: rpe || null });
       } catch (err) {
         // Put the old values back rather than leaving the UI ahead of the sheet.
         setLogs((prev) =>

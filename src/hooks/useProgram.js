@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { fetchBundle, deserializeBundle } from "@/actions/sheets";
+import { fetchBundle, deserializeBundle } from "@/actions/data";
 
 /** Fallback only — real session names come from the Sheet. */
 export const SESSIONS = ["Upper A", "Lower A", "Upper B", "Lower B", "Kondisioning"];

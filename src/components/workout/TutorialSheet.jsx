@@ -91,15 +91,13 @@ export default function TutorialSheet({ exercise, programInfo, onClose }) {
           </div>
         ) : (
           <p className="text-sm text-ink-muted">
-            Belum ada catatan tekniknya. Isi kolom <span className="font-medium text-ink">cues</span> di
-            sheet <span className="font-medium text-ink">Exercises</span> buat nampilin di sini.
+            Belum ada catatan tekniknya buat gerakan ini.
           </p>
         )}
 
         {!videoUrl && (
           <p className="text-xs text-ink-faint">
-            Tambahin link YouTube di kolom <span className="font-medium">video_url</span> buat nonton
-            langsung dari sini.
+            Belum ada video buat gerakan ini.
           </p>
         )}
 
