@@ -48,11 +48,11 @@ function LoginForm() {
       }
 
       setPin("");
-      setError(data.error || "PIN salah.");
+      setError(data.error || "Wrong PIN.");
       setRemaining(typeof data.remaining === "number" ? data.remaining : null);
       setLockedFor(data.retryAfterSeconds || 0);
     } catch {
-      setError("Nggak bisa konek ke server. Cek koneksi lo.");
+      setError("Can't reach the server. Check your connection.");
     } finally {
       setLoading(false);
     }
@@ -66,7 +66,7 @@ function LoginForm() {
             <FiLock size={20} className="text-white" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-ink">Latihan</h1>
-          <p className="text-sm text-ink-muted mt-1.5">PIN dulu, baru boleh masuk</p>
+          <p className="text-sm text-ink-muted mt-1.5">Enter your PIN to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className="card p-6 space-y-4">
@@ -97,10 +97,10 @@ function LoginForm() {
             >
               <FiAlertCircle size={16} className="text-red-700 shrink-0 mt-0.5" />
               <div className="text-sm text-red-700">
-                <p>{locked ? `Terkunci. Coba lagi dalam ${lockedFor} detik.` : error}</p>
+                <p>{locked ? `Locked. Try again in ${lockedFor} seconds.` : error}</p>
                 {!locked && remaining != null && remaining > 0 && (
                   <p className="text-xs mt-0.5 opacity-80">
-                    Sisa {remaining} percobaan sebelum terkunci sementara.
+                    {remaining} {remaining === 1 ? "attempt" : "attempts"} left before a temporary lockout.
                   </p>
                 )}
               </div>
@@ -112,7 +112,7 @@ function LoginForm() {
             disabled={loading || locked || pin.length < 4}
             className="btn btn-primary btn-md w-full"
           >
-            {loading ? "Ngecek..." : locked ? `Sabar ${lockedFor}s` : "Masuk"}
+            {loading ? "Checking..." : locked ? `Wait ${lockedFor}s` : "Unlock"}
           </button>
         </form>
       </div>

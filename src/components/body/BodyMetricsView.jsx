@@ -5,10 +5,10 @@ import MetricsChart from "./MetricsChart";
 import { FiTrash2, FiPlus, FiX, FiArrowDown, FiArrowUp, FiAlertCircle } from "react-icons/fi";
 
 const BMI_BANDS = [
-  { max: 18.5, label: "Kurus", tone: "text-sky-700" },
+  { max: 18.5, label: "Underweight", tone: "text-sky-700" },
   { max: 25, label: "Normal", tone: "text-emerald-700" },
   { max: 30, label: "Overweight", tone: "text-amber-700" },
-  { max: Infinity, label: "Obesitas", tone: "text-red-600" },
+  { max: Infinity, label: "Obese", tone: "text-red-600" },
 ];
 
 function bmiBand(bmi) {
@@ -22,7 +22,7 @@ function getLocalToday() {
 }
 
 const formatDate = (d) =>
-  new Date(d + "T00:00:00").toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+  new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 /**
  * A measurement on its own says little — the change since the last one is the
@@ -89,9 +89,9 @@ export default function BodyMetricsView() {
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="page-title">Bentuk Badan</h1>
+          <h1 className="page-title">Body</h1>
           <p className="page-sub">
-            {latest ? `Terakhir ditimbang ${formatDate(latest.date)}` : "Belum pernah ditimbang"}
+            {latest ? `Last weighed ${formatDate(latest.date)}` : "Not weighed yet"}
           </p>
         </div>
         <button
@@ -99,7 +99,7 @@ export default function BodyMetricsView() {
           className={`btn btn-md shrink-0 ${showForm ? "btn-secondary" : "btn-primary"}`}
         >
           {showForm ? <FiX size={15} /> : <FiPlus size={15} />}
-          {showForm ? "Batal" : "Catat"}
+          {showForm ? "Cancel" : "Log"}
         </button>
       </header>
 
@@ -113,18 +113,18 @@ export default function BodyMetricsView() {
       {latest && (
         <div className="card flex divide-x divide-line">
           <Stat
-            label="Berat"
+            label="Weight"
             value={latest.weight}
             unit="kg"
             delta={previous ? latest.weight - previous.weight : null}
-            caption={previous ? "tetap" : "baseline"}
+            caption={previous ? "no change" : "baseline"}
           />
           <Stat
-            label="Pinggang"
+            label="Waist"
             value={latest.waist}
             unit="cm"
             delta={previous ? latest.waist - previous.waist : null}
-            caption={previous ? "tetap" : "baseline"}
+            caption={previous ? "no change" : "baseline"}
           />
           <Stat
             label="BMI"
@@ -136,18 +136,18 @@ export default function BodyMetricsView() {
         </div>
       )}
 
-      {latest && <p className="text-xs text-ink-faint -mt-2 px-1">{band.label} · tinggi {latest.height} cm</p>}
+      {latest && <p className="text-xs text-ink-faint -mt-2 px-1">{band.label} · height {latest.height} cm</p>}
 
       {metrics.length >= 2 && <MetricsChart metrics={metrics} />}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="card p-4 space-y-4">
-          <h2 className="text-sm font-semibold text-ink">Naik timbangan</h2>
+          <h2 className="text-sm font-semibold text-ink">Weigh in</h2>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: "Berat (kg)", key: "weight", step: "0.1", placeholder: "84.5", required: true },
-              { label: "Pinggang (cm)", key: "waist", step: "0.5", placeholder: "98", required: true },
-              { label: "Tinggi (cm)", key: "height", step: "1", placeholder: "173" },
+              { label: "Weight (kg)", key: "weight", step: "0.1", placeholder: "84.5", required: true },
+              { label: "Waist (cm)", key: "waist", step: "0.5", placeholder: "98", required: true },
+              { label: "Height (cm)", key: "height", step: "1", placeholder: "173" },
             ].map(({ label, key, step, placeholder, required }) => (
               <div key={key}>
                 <label htmlFor={`bm-${key}`} className="field-label">{label}</label>
@@ -165,7 +165,7 @@ export default function BodyMetricsView() {
               </div>
             ))}
             <div>
-              <label htmlFor="bm-date" className="field-label">Tanggal</label>
+              <label htmlFor="bm-date" className="field-label">Date</label>
               <input
                 id="bm-date"
                 type="date"
@@ -180,14 +180,14 @@ export default function BodyMetricsView() {
             disabled={saving || !form.weight || !form.waist}
             className="btn btn-primary btn-md w-full"
           >
-            {saving ? "Bentar..." : "Simpan"}
+            {saving ? "Saving..." : "Save"}
           </button>
         </form>
       )}
 
       {metrics.length > 0 && (
         <section>
-          <p className="section-label mb-2.5">Rekam jejak</p>
+          <p className="section-label mb-2.5">History</p>
           <div className="card divide-y divide-line">
             {metrics.map((m, i) => {
               const prev = metrics[i + 1];
@@ -212,7 +212,7 @@ export default function BodyMetricsView() {
                   )}
                   <button
                     onClick={() => deleteMetric(m._id)}
-                    aria-label={`Hapus pengukuran ${formatDate(m.date)}`}
+                    aria-label={`Delete measurement from ${formatDate(m.date)}`}
                     className="btn btn-ghost btn-icon shrink-0"
                   >
                     <FiTrash2 size={13} />
@@ -226,13 +226,13 @@ export default function BodyMetricsView() {
 
       {metrics.length === 0 && !showForm && (
         <div className="card p-8 text-center">
-          <p className="text-sm font-medium text-ink mb-1">Masih kosong</p>
+          <p className="text-sm font-medium text-ink mb-1">Nothing yet</p>
           <p className="text-sm text-ink-muted mb-4">
-            Timbang sekali dulu. Tren-nya baru kelihatan setelah ada dua titik.
+            Weigh in once to start. The trend shows up after two entries.
           </p>
           <button onClick={() => setShowForm(true)} className="btn btn-primary btn-md mx-auto">
             <FiPlus size={15} />
-            Timbang sekarang
+            Weigh in now
           </button>
         </div>
       )}

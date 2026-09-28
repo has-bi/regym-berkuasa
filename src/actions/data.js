@@ -20,14 +20,14 @@ async function request(url, body) {
       }),
     });
   } catch {
-    throw new Error("Nggak ada koneksi.");
+    throw new Error("No connection.");
   }
 
-  if (res.status === 401) throw new Error("Sesi lo habis. Login ulang.");
+  if (res.status === 401) throw new Error("Your session expired. Log in again.");
 
   const data = await res.json().catch(() => null);
   if (!res.ok || data?.error) {
-    throw new Error(data?.error || `Gagal (${res.status}).`);
+    throw new Error(data?.error || `Request failed (${res.status}).`);
   }
   return data;
 }

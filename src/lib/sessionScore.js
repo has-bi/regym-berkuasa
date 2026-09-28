@@ -3,10 +3,10 @@
  *
  * Four things get points, and the sheet shows the split so the number is never
  * a black box:
- *   selesai     40  did you finish what was programmed
- *   naik        30  volume against the last time you ran this same session
- *   rekor       20  personal bests set today
- *   ngegas      10  average RPE landing in the productive 7–9 band
+ *   completion  40  did you finish what was programmed
+ *   progression 30  volume against the last time you ran this same session
+ *   records     20  personal bests set today
+ *   effort      10  average RPE landing in the productive 7–9 band
  *
  * Everything here is deterministic. Reopening the summary must show the same
  * words, so the flavour line is chosen by hashing date+session rather than at
@@ -16,62 +16,62 @@
 const TIERS = [
   {
     min: 90,
-    title: "Sekuat Doraemon",
-    tagline: "Kantong ajaibnya isi pelat semua.",
+    title: "Final Boss",
+    tagline: "The barbell asked for a rematch.",
     lines: [
-      "Barbel-nya yang minta ampun, bukan kamu.",
-      "Gravitasi baru aja ngajuin surat pengunduran diri.",
-      "Ini bukan latihan, ini pameran kekuatan.",
+      "The bar begged for mercy, not you.",
+      "Gravity just handed in its resignation.",
+      "That wasn't a workout, it was a demonstration.",
     ],
   },
   {
     min: 78,
-    title: "Beban Hidup Kalah Berat",
-    tagline: "Yang di pundak tadi lebih ringan dari tanggungan bulanan.",
+    title: "Heavier Than Your Rent",
+    tagline: "The bar on your back weighed less than this month's bills.",
     lines: [
-      "Rak besinya mulai kenal namamu.",
-      "Otot bertambah, overthinking berkurang. Adil.",
-      "Sesi model begini yang bikin grafiknya naik.",
+      "The squat rack is starting to know your name.",
+      "More muscle, less overthinking. Fair trade.",
+      "Sessions like this are what make the chart go up.",
     ],
   },
   {
     min: 62,
-    title: "Kuli Panggul Bersertifikat",
-    tagline: "Rapi, konsisten, nggak drama.",
+    title: "Certified Workhorse",
+    tagline: "Clean, consistent, no drama.",
     lines: [
-      "Nggak spektakuler, tapi justru ini yang bikin progres.",
-      "Datang, angkat, pulang. Resep yang kelihatan membosankan tapi manjur.",
-      "Tubuhmu nggak butuh heboh, cuma butuh diulang.",
+      "Not spectacular, but this is exactly what builds progress.",
+      "Show up, lift, go home. Boring recipe, works every time.",
+      "Your body doesn't need hype, it needs repetition.",
     ],
   },
   {
     min: 45,
-    title: "Ayam Geprek",
-    tagline: "Sempat digeprek, tapi tetap bangkit.",
+    title: "Bent, Not Broken",
+    tagline: "Got knocked around, still got up.",
     lines: [
-      "Setengah jalan tetap lebih jauh dari nol.",
-      "Hari ini seri lawan kasur. Lumayan.",
-      "Nggak semua sesi harus jadi highlight.",
+      "Halfway is still further than zero.",
+      "Called it a draw against the couch today. Not bad.",
+      "Not every session has to be a highlight.",
     ],
   },
   {
     min: 25,
-    title: "Pemanasan Bumi",
-    tagline: "Naik sih, dikit.",
+    title: "Global Warm-Up",
+    tagline: "The temperature went up. A little.",
     lines: [
-      "Keringat tetap keringat, walaupun malu-malu.",
-      "Badanmu nyatet kok, walau dikit.",
-      "Besok tambahin satu set, udah beda cerita.",
+      "Sweat is sweat, even the shy kind.",
+      "Your body took notes, even if they were short.",
+      "Add one more set tomorrow and it's a different story.",
     ],
   },
   {
     min: 0,
-    title: "Numpang Absen",
-    tagline: "Tapi absen tetap dihitung.",
+    title: "Just Checking In",
+    tagline: "Attendance still counts.",
     lines: [
-      "Dateng aja udah ngalahin versi dirimu yang rebahan.",
-      "Sesi terjelek tetap mengalahkan sesi yang nggak pernah terjadi.",
-      "Streak selamat. Itu dulu yang penting.",
+      "Showing up already beat the version of you on the couch.",
+      "The worst session still beats the one that never happened.",
+      "Streak saved. That's what matters today.",
     ],
   },
 ];
@@ -126,10 +126,10 @@ export function scoreSession({ todaySets, priorSets = [], targetSets = 0, prCoun
       prCount: 0,
       avgRpe: null,
       breakdown: [
-        { label: "Nyelesaiin program", value: 0, max: 40 },
-        { label: "Naik dari sesi lalu", value: 0, max: 30 },
-        { label: "Rekor baru", value: 0, max: 20 },
-        { label: "Ngegas pas takarannya", value: 0, max: 10 },
+        { label: "Finished the program", value: 0, max: 40 },
+        { label: "Up from last session", value: 0, max: 30 },
+        { label: "New records", value: 0, max: 20 },
+        { label: "Effort in the sweet spot", value: 0, max: 10 },
       ],
     };
   }
@@ -180,10 +180,10 @@ export function scoreSession({ todaySets, priorSets = [], targetSets = 0, prCoun
     prCount,
     avgRpe,
     breakdown: [
-      { label: "Nyelesaiin program", value: completion, max: 40 },
-      { label: "Naik dari sesi lalu", value: progression, max: 30 },
-      { label: "Rekor baru", value: records, max: 20 },
-      { label: "Ngegas pas takarannya", value: intensity, max: 10 },
+      { label: "Finished the program", value: completion, max: 40 },
+      { label: "Up from last session", value: progression, max: 30 },
+      { label: "New records", value: records, max: 20 },
+      { label: "Effort in the sweet spot", value: intensity, max: 10 },
     ],
   };
 }

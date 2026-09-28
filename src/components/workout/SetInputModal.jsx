@@ -6,14 +6,14 @@ import { FiTrendingUp, FiAward } from "react-icons/fi";
 
 const RPE_OPTIONS = [6, 7, 8, 9, 10];
 const RPE_HINT = {
-  6: "Ringan · sisa 4+ rep",
-  7: "Sedang · sisa 3 rep",
-  8: "Berat · sisa 2 rep",
-  9: "Sangat berat · sisa 1 rep",
-  10: "Maksimal · gagal",
+  6: "Easy · 4+ reps left",
+  7: "Moderate · 3 reps left",
+  8: "Hard · 2 reps left",
+  9: "Very hard · 1 rep left",
+  10: "Max · failure",
 };
 
-/** First number in a target like "8-12", "2-3 menit" or "30 detik per sisi". */
+/** First number in a target like "8-12", "2-3 min" or "30 sec per side". */
 function leadingNumber(text) {
   const m = String(text ?? "").match(/\d+/);
   return m ? parseInt(m[0], 10) : null;
@@ -23,11 +23,11 @@ function formatDaysAgo(dateStr) {
   const then = new Date(dateStr + "T00:00:00");
   const now = new Date();
   const days = Math.round((now - then) / 86400000);
-  if (days <= 0) return "hari ini";
-  if (days === 1) return "kemarin";
-  if (days < 7) return `${days} hari lalu`;
-  if (days < 14) return "minggu lalu";
-  return `${Math.floor(days / 7)} minggu lalu`;
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days} days ago`;
+  if (days < 14) return "last week";
+  return `${Math.floor(days / 7)} weeks ago`;
 }
 
 export default function SetInputModal({
@@ -48,7 +48,7 @@ export default function SetInputModal({
   const [reps, setReps] = useState(() => {
     if (prefillReps != null) return String(prefillReps);
     // No history yet: seed from the programmed target so bodyweight and
-    // duration work ("2-3 menit", "30 detik per sisi") is not left at zero.
+    // duration work ("2-3 min", "30 sec per side") is not left at zero.
     const fromTarget = leadingNumber(targetReps);
     return fromTarget != null ? String(fromTarget) : "";
   });
@@ -81,7 +81,7 @@ export default function SetInputModal({
 
   return (
     <Sheet
-      subtitle={isEdit ? `Ubah set ${setNumber}` : `Set ${setNumber}`}
+      subtitle={isEdit ? `Edit set ${setNumber}` : `Set ${setNumber}`}
       title={exerciseName}
       onClose={onClose}
       footer={
@@ -92,12 +92,12 @@ export default function SetInputModal({
             className="btn btn-primary btn-lg w-full"
           >
             {isPR && <FiAward size={18} />}
-            {isEdit ? "Simpan Perubahan" : isPR ? "Catat PR Baru" : "Catat Set"}
+            {isEdit ? "Save changes" : isPR ? "Log new PR" : "Log set"}
           </button>
           {/* Never leave a disabled button unexplained */}
           {!valid && (
             <p className="text-xs text-ink-muted text-center mt-2">
-              Reps-nya diisi dulu dong. Beban boleh 0 kalau modal badan doang.
+              Fill in the reps first. Weight can be 0 for bodyweight.
             </p>
           )}
         </div>
@@ -110,7 +110,7 @@ export default function SetInputModal({
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs text-ink-muted mb-0.5">
-                  Terakhir · {formatDaysAgo(lastPerformance.date)}
+                  Last time · {formatDaysAgo(lastPerformance.date)}
                 </p>
                 <p className="text-sm font-semibold text-ink tabular">
                   {referenceSet.weight} kg × {referenceSet.reps}
@@ -135,20 +135,20 @@ export default function SetInputModal({
         ) : (
           <div className="card bg-surface-raised border-line p-3.5">
             <p className="text-xs text-ink-muted">
-              Belum ada riwayat. Set ini yang bakal jadi patokan nanti.
+              No history yet. This set becomes the benchmark.
             </p>
           </div>
         )}
 
         <Stepper
-          label="Beban"
+          label="Weight"
           value={weight}
           onChange={setWeight}
           step={2.5}
           suffix="kg"
           hint={
             isBodyweight
-              ? "Modal badan doang"
+              ? "Bodyweight"
               : personalBest?.metric === "weight"
                 ? `PR ${personalBest.value} kg`
                 : null
@@ -197,7 +197,7 @@ export default function SetInputModal({
         {isPR && (
           <div className="flex items-center gap-2 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-xl px-3.5 py-3">
             <FiAward size={16} className="shrink-0" />
-            Rekor pecah — sebelumnya cuma {personalBest.value}
+            Record broken — previous best was {personalBest.value}
             {personalBest.metric === "weight" ? " kg" : " reps"}
           </div>
         )}

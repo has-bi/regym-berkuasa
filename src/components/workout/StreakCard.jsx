@@ -5,22 +5,22 @@ const STATUS = {
   done: {
     ring: "bg-ink text-white border-ink",
     icon: <FiCheck size={13} strokeWidth={3} />,
-    label: "selesai",
+    label: "done",
   },
   rest: {
     ring: "bg-surface-raised text-ink-faint border-line",
     icon: <FiMoon size={12} />,
-    label: "istirahat",
+    label: "rest",
   },
   missed: {
     ring: "bg-surface text-red-600 border-red-200",
     icon: <FiX size={13} strokeWidth={3} />,
-    label: "bolos",
+    label: "missed",
   },
   pending: {
     ring: "bg-surface text-ink-faint border-line-strong border-dashed",
     icon: null,
-    label: "belum",
+    label: "pending",
   },
 };
 
@@ -28,10 +28,10 @@ export default function StreakCard({ streak, weekStrip }) {
   const { current, best, todayPlan, pendingToday, trainedToday } = streak;
 
   const headline = todayPlan?.isRest
-    ? "Jatah rebahan"
+    ? "Rest day"
     : trainedToday
-      ? "Beres. Mantap."
-      : todayPlan?.session || "Kosong, bebas";
+      ? "Done. Nice."
+      : todayPlan?.session || "Free day";
 
   return (
     <div className="card p-4">
@@ -40,18 +40,18 @@ export default function StreakCard({ streak, weekStrip }) {
           <p className="text-xs text-ink-muted mb-1">Streak</p>
           <p className="text-3xl font-semibold text-ink tabular leading-none flex items-baseline gap-1.5">
             {current}
-            <span className="text-sm font-normal text-ink-faint">hari</span>
+            <span className="text-sm font-normal text-ink-faint">{current === 1 ? "day" : "days"}</span>
             {current > 0 && current >= best && best > 1 && (
               <FiZap size={15} className="text-amber-500 self-center" />
             )}
           </p>
           <p className="text-xs text-ink-faint mt-1.5 tabular">
-            {best > current ? `Rekormu ${best} hari` : current > 1 ? "Ini rekor terpanjangmu" : "Baru mulai. Gapapa."}
+            {best > current ? `Best: ${best} days` : current > 1 ? "Your longest streak yet" : "Just getting started. That's fine."}
           </p>
         </div>
 
         <div className="text-right shrink-0 min-w-0">
-          <p className="text-xs text-ink-muted mb-1">Hari ini</p>
+          <p className="text-xs text-ink-muted mb-1">Today</p>
           <p
             className={`text-sm font-semibold truncate ${
               todayPlan?.isRest ? "text-ink-muted" : trainedToday ? "text-emerald-700" : "text-ink"
@@ -77,7 +77,7 @@ export default function StreakCard({ streak, weekStrip }) {
                 {d.dayShort}
               </span>
               <span
-                title={`${d.dayShort}: ${d.session || "Istirahat"} — ${s.label}`}
+                title={`${d.dayShort}: ${d.session || "Rest"} — ${s.label}`}
                 className={`h-8 w-8 rounded-full border flex items-center justify-center ${s.ring} ${
                   d.isToday ? "ring-2 ring-offset-2 ring-ink/20" : ""
                 }`}
@@ -91,7 +91,7 @@ export default function StreakCard({ streak, weekStrip }) {
 
       {pendingToday && (
         <p className="text-xs text-ink-muted mt-3.5 text-center">
-          Saran hari ini: <span className="font-medium text-ink">{todayPlan.session}</span>. Mau ganti yang lain juga boleh — yang penting kecatat.
+          Suggested today: <span className="font-medium text-ink">{todayPlan.session}</span>. Swap it for something else if you like — what matters is that it gets logged.
         </p>
       )}
     </div>

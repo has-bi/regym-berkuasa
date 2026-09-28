@@ -76,7 +76,7 @@ export default function ProgramView() {
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
       <header>
         <h1 className="page-title">Program</h1>
-        <p className="page-sub">Semua menu latihan. Bebas mau lihat yang mana.</p>
+        <p className="page-sub">Every session on the menu. Browse any of them.</p>
       </header>
 
       {error && (
@@ -110,18 +110,18 @@ export default function ProgramView() {
               {scheduledOn?.length ? (
                 <p className="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5">
                   <FiCalendar size={11} className="shrink-0" />
-                  Biasanya {scheduledOn.join(", ")}
+                  Usually {scheduledOn.join(", ")}
                   {todayPlan?.session === selected && (
-                    <span className="text-emerald-700 font-medium"> · hari ini</span>
+                    <span className="text-emerald-700 font-medium"> · today</span>
                   )}
                 </p>
               ) : (
-                <p className="text-xs text-ink-faint mt-0.5">Nggak dijadwalkan — ambil kapan aja</p>
+                <p className="text-xs text-ink-faint mt-0.5">Not scheduled — do it any day</p>
               )}
             </div>
             {list.length > 0 && (
               <p className="text-xs text-ink-muted tabular shrink-0">
-                {list.length} gerakan · {totalSets} set
+                {list.length} exercises · {totalSets} sets
               </p>
             )}
           </div>
@@ -154,9 +154,9 @@ export default function ProgramView() {
 
             {list.length === 0 && (
               <div className="card p-8 text-center">
-                <p className="text-sm font-medium text-ink mb-1">Sesi {selected} masih kosong</p>
+                <p className="text-sm font-medium text-ink mb-1">{selected} is empty</p>
                 <p className="text-sm text-ink-muted">
-                  Belum ada gerakan yang terdaftar buat sesi ini.
+                  No exercises are set up for this session yet.
                 </p>
               </div>
             )}
@@ -167,7 +167,7 @@ export default function ProgramView() {
       {/* The weekly plan, presented as a reference rather than a controller */}
       {restDays.length > 0 && (
         <div className="card p-4">
-          <p className="section-label mb-2.5">Saran mingguan</p>
+          <p className="section-label mb-2.5">Suggested week</p>
           <div className="space-y-1.5">
             {WEEK_ORDER.map((day) => {
               const p = scheduleMap[day];
@@ -176,16 +176,16 @@ export default function ProgramView() {
               return (
                 <div key={day} className="flex items-center gap-3 text-sm">
                   <span
-                    className={`w-16 shrink-0 ${isToday ? "font-semibold text-ink" : "text-ink-muted"}`}
+                    className={`w-24 shrink-0 ${isToday ? "font-semibold text-ink" : "text-ink-muted"}`}
                   >
                     {day}
                   </span>
                   <span className={rest ? "text-ink-faint" : "text-ink"}>
-                    {rest ? "istirahat" : p.session}
+                    {rest ? "rest" : p.session}
                   </span>
                   {isToday && (
                     <span className="text-xs text-emerald-700 font-medium ml-auto shrink-0">
-                      hari ini
+                      today
                     </span>
                   )}
                 </div>
@@ -193,7 +193,7 @@ export default function ProgramView() {
             })}
           </div>
           <p className="text-xs text-ink-faint mt-3 leading-relaxed">
-            Ini cuma saran. Mau angkat apa pun di hari mana pun, streak tetap jalan.
+            Just a suggestion. Lift whatever you want on any day — the streak keeps going.
           </p>
         </div>
       )}

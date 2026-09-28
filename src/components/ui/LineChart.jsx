@@ -37,7 +37,7 @@ export default function LineChart({ data, unit = "", height = 150 }) {
   const showEveryDot = data.length <= 12;
 
   const fmtDate = (d) =>
-    new Date(d + "T00:00:00").toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+    new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
   const tickIdx = [0, Math.floor((data.length - 1) / 2), data.length - 1].filter(
     (v, i, a) => a.indexOf(v) === i
@@ -48,7 +48,7 @@ export default function LineChart({ data, unit = "", height = 150 }) {
       viewBox={`0 0 ${W} ${H}`}
       className="w-full text-ink"
       role="img"
-      aria-label={`Grafik tren, dari ${rawMin}${unit} sampai ${rawMax}${unit}`}
+      aria-label={`Trend chart, from ${rawMin}${unit} to ${rawMax}${unit}`}
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">

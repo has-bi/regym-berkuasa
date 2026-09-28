@@ -12,7 +12,7 @@ export async function POST(request) {
     if (action === "update") return NextResponse.json(await updateWorkoutSet(id, payload));
     if (action === "delete") return NextResponse.json(await deleteWorkoutSet(id));
 
-    return NextResponse.json({ error: "Aksi nggak dikenal." }, { status: 400 });
+    return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
     return fail(e);
   }

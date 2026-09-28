@@ -11,7 +11,7 @@ export async function POST(request) {
     if (action === "add") return NextResponse.json(await addBodyMetric(payload));
     if (action === "delete") return NextResponse.json(await deleteBodyMetric(id));
 
-    return NextResponse.json({ error: "Aksi nggak dikenal." }, { status: 400 });
+    return NextResponse.json({ error: "Unknown action." }, { status: 400 });
   } catch (e) {
     return fail(e);
   }

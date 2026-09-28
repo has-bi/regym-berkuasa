@@ -109,8 +109,8 @@ export default function SummaryView() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
       <header>
-        <h1 className="page-title">Rapor</h1>
-        <p className="page-sub">Angka nggak bisa bohong</p>
+        <h1 className="page-title">Report</h1>
+        <p className="page-sub">Numbers don&rsquo;t lie</p>
       </header>
 
       {error && (
@@ -122,17 +122,17 @@ export default function SummaryView() {
 
       {logs.length === 0 ? (
         <div className="card p-8 text-center">
-          <p className="text-sm font-medium text-ink mb-1">Belum ada apa-apa</p>
-          <p className="text-sm text-ink-muted">Catat beberapa set dulu, nanti grafiknya muncul sendiri.</p>
+          <p className="text-sm font-medium text-ink mb-1">Nothing yet</p>
+          <p className="text-sm text-ink-muted">Log a few sets and the charts will show up on their own.</p>
         </div>
       ) : (
         <>
           <div className="card flex divide-x divide-line">
             <div className="flex-1 px-4 py-3.5">
-              <p className="text-xs text-ink-muted mb-1">Minggu ini</p>
+              <p className="text-xs text-ink-muted mb-1">This week</p>
               <p className="text-2xl font-semibold text-ink tabular leading-none flex items-baseline gap-1.5">
                 {weekly.current}
-                <span className="text-sm font-normal text-ink-faint">sesi</span>
+                <span className="text-sm font-normal text-ink-faint">sessions</span>
                 {weekly.previous > 0 && weekDelta !== 0 && (
                   <span
                     className={`text-xs font-semibold tabular ${
@@ -145,27 +145,27 @@ export default function SummaryView() {
                 )}
               </p>
               <p className="text-xs text-ink-faint mt-1.5">
-                {weekly.previous > 0 ? "vs pekan lalu" : "pekan perdana"}
+                {weekly.previous > 0 ? "vs last week" : "first week"}
               </p>
             </div>
             <div className="flex-1 px-4 py-3.5">
-              <p className="text-xs text-ink-muted mb-1">Total sesi</p>
+              <p className="text-xs text-ink-muted mb-1">Total sessions</p>
               <p className="text-2xl font-semibold text-ink tabular leading-none">{totalSessions}</p>
-              <p className="text-xs text-ink-faint mt-1.5 tabular">{logs.length} set</p>
+              <p className="text-xs text-ink-faint mt-1.5 tabular">{logs.length} sets</p>
             </div>
             <div className="flex-1 px-4 py-3.5 min-w-0">
               <p className="text-xs text-ink-muted mb-1">Volume</p>
               <p className="text-2xl font-semibold text-ink tabular leading-none truncate">
-                {Math.round(totalVolume / 1000).toLocaleString("id-ID")}
-                <span className="text-sm font-normal text-ink-faint ml-1">ton</span>
+                {Math.round(totalVolume / 1000).toLocaleString("en-US")}
+                <span className="text-sm font-normal text-ink-faint ml-1">t</span>
               </p>
-              <p className="text-xs text-ink-faint mt-1.5">seumur hidup</p>
+              <p className="text-xs text-ink-faint mt-1.5">all time</p>
             </div>
           </div>
 
           {bodyProgress.length >= 2 && (
             <div className="card p-4">
-              <p className="text-sm font-semibold text-ink mb-3">Tren Berat Badan</p>
+              <p className="text-sm font-semibold text-ink mb-3">Body Weight Trend</p>
               <LineChart data={bodyProgress} unit="kg" />
             </div>
           )}
@@ -173,7 +173,7 @@ export default function SummaryView() {
           {exerciseNames.length > 0 && (
             <div className="card p-4 space-y-4">
               <div>
-                <label htmlFor="ex-select" className="field-label">Lihat per gerakan</label>
+                <label htmlFor="ex-select" className="field-label">View by exercise</label>
                 <select
                   id="ex-select"
                   value={selected}
@@ -191,7 +191,7 @@ export default function SummaryView() {
                   <div className="flex-1 px-3 py-3">
                     <p className="text-xs text-ink-muted mb-1 flex items-center gap-1">
                       <FiAward size={11} />
-                      Terberat
+                      Heaviest
                     </p>
                     <p className="text-lg font-semibold text-ink tabular leading-none">
                       {stats.best.weight}
@@ -204,7 +204,7 @@ export default function SummaryView() {
                     <p className="text-lg font-semibold text-ink tabular leading-none">{stats.totalSets}</p>
                   </div>
                   <div className="flex-1 px-3 py-3">
-                    <p className="text-xs text-ink-muted mb-1">Rata-rata RPE</p>
+                    <p className="text-xs text-ink-muted mb-1">Average RPE</p>
                     <p className="text-lg font-semibold text-ink tabular leading-none">
                       {stats.avgRpe ?? "—"}
                     </p>
@@ -214,12 +214,12 @@ export default function SummaryView() {
 
               {exerciseProgress.length >= 2 ? (
                 <div>
-                  <p className="text-xs text-ink-muted mb-1">Beban terberat tiap sesi (kg)</p>
+                  <p className="text-xs text-ink-muted mb-1">Heaviest weight per session (kg)</p>
                   <LineChart data={exerciseProgress} unit="kg" height={140} />
                 </div>
               ) : (
                 <p className="text-sm text-ink-muted text-center py-6">
-                  Butuh 2 sesi dulu baru ada garisnya.
+                  Needs 2 sessions before a line shows up.
                 </p>
               )}
             </div>

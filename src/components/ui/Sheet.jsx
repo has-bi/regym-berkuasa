@@ -54,7 +54,7 @@ export default function Sheet({ title, subtitle, onClose, children, footer }) {
           </div>
           <button
             onClick={onClose}
-            aria-label="Tutup"
+            aria-label="Close"
             className="btn btn-ghost btn-icon shrink-0 -mr-1 -mt-0.5"
           >
             <FiX size={18} />

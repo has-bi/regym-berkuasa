@@ -18,7 +18,7 @@ export default function ExercisePicker({ exercises, alreadyAdded, onSelect, onCl
 
     const map = {};
     filtered.forEach((e) => {
-      (map[e.muscle_group || "Lainnya"] ||= []).push(e);
+      (map[e.muscle_group || "Other"] ||= []).push(e);
     });
     return map;
   }, [exercises, alreadyAdded, query]);
@@ -27,7 +27,7 @@ export default function ExercisePicker({ exercises, alreadyAdded, onSelect, onCl
   const trimmed = query.trim();
 
   return (
-    <Sheet title="Mau angkat apa?" onClose={onClose}>
+    <Sheet title="What are you lifting?" onClose={onClose}>
       <div className="sticky top-0 bg-surface pb-3 -mx-5 px-5 z-10">
         <div className="relative">
           <FiSearch
@@ -37,7 +37,7 @@ export default function ExercisePicker({ exercises, alreadyAdded, onSelect, onCl
           <input
             autoFocus
             type="text"
-            placeholder="Ketik nama gerakan atau ototnya..."
+            placeholder="Search by exercise or muscle..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="field pl-9"
@@ -68,14 +68,14 @@ export default function ExercisePicker({ exercises, alreadyAdded, onSelect, onCl
 
         {count === 0 && (
           <div className="text-center py-10">
-            <p className="text-sm font-medium text-ink mb-1">Nihil</p>
+            <p className="text-sm font-medium text-ink mb-1">No matches</p>
             <p className="text-sm text-ink-muted mb-4">
-              {trimmed ? `Nggak nemu "${trimmed}" di daftar.` : "Semua gerakan udah masuk semua."}
+              {trimmed ? `Couldn't find "${trimmed}" in the list.` : "Every exercise is already added."}
             </p>
             {trimmed && (
               <button onClick={() => onSelect(trimmed)} className="btn btn-primary btn-md mx-auto">
                 <FiPlus size={15} />
-                Pakai &ldquo;{trimmed}&rdquo;
+                Use &ldquo;{trimmed}&rdquo;
               </button>
             )}
           </div>

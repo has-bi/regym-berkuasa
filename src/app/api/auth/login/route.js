@@ -7,14 +7,14 @@ import { clientKey, checkLock, recordFailure, recordSuccess } from "@/lib/rateLi
 export const runtime = "nodejs";
 
 /** One message for every rejection, so probing cannot map the failure modes. */
-const GENERIC = "PIN salah.";
+const GENERIC = "Wrong PIN.";
 
 export async function POST(request) {
   const credential = configuredPin();
   if (!credential) {
     // Misconfiguration must fail closed rather than let everyone in.
     return NextResponse.json(
-      { error: "Auth belum dikonfigurasi di server." },
+      { error: "Auth is not configured on the server." },
       { status: 500 }
     );
   }
@@ -25,7 +25,7 @@ export async function POST(request) {
   if (lock.locked) {
     return NextResponse.json(
       {
-        error: `Terlalu banyak percobaan. Coba lagi dalam ${lock.retryAfterSeconds} detik.`,
+        error: `Too many attempts. Try again in ${lock.retryAfterSeconds} seconds.`,
         retryAfterSeconds: lock.retryAfterSeconds,
       },
       { status: 429, headers: { "Retry-After": String(lock.retryAfterSeconds) } }
@@ -52,7 +52,7 @@ export async function POST(request) {
     return NextResponse.json(
       {
         error: retryAfterSeconds
-          ? `Terlalu banyak percobaan. Coba lagi dalam ${retryAfterSeconds} detik.`
+          ? `Too many attempts. Try again in ${retryAfterSeconds} seconds.`
           : GENERIC,
         remaining,
         retryAfterSeconds,

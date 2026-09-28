@@ -42,7 +42,7 @@ function client() {
 
   const url = process.env.DATABASE_URL;
   if (!url) {
-    throw new DbError("DATABASE_URL belum diset di environment variable.", "config");
+    throw new DbError("DATABASE_URL is not set in the environment.", "config");
   }
 
   // The Neon HTTP driver derives an api.<host> endpoint from the URL, so it
@@ -70,13 +70,13 @@ function wrap(err) {
 
   if (err instanceof DbError) return err;
   if (/password authentication|role .* does not exist/i.test(msg)) {
-    return new DbError("Kredensial database ditolak. Cek DATABASE_URL.", "auth");
+    return new DbError("Database credentials were rejected. Check DATABASE_URL.", "auth");
   }
   if (/relation .* does not exist/i.test(msg)) {
-    return new DbError("Tabelnya belum dibikin. Jalanin db/schema.sql dulu.", "schema");
+    return new DbError("Tables are missing. Run db/schema.sql first.", "schema");
   }
   if (/timeout|ETIMEDOUT|ECONNREFUSED|fetch failed/i.test(msg)) {
-    return new DbError("Nggak bisa nyambung ke database.", "network");
+    return new DbError("Can't connect to the database.", "network");
   }
   return new DbError(msg, "query");
 }
@@ -135,7 +135,7 @@ export async function updateWorkoutSet(id, p) {
          set weight = ${p.weight}, reps = ${p.reps}, rpe = ${p.rpe}
        where id = ${id}
       returning id`;
-    if (!rows.length) throw new DbError("Set-nya udah nggak ada.", "notfound");
+    if (!rows.length) throw new DbError("That set no longer exists.", "notfound");
     return { id: rows[0].id };
   } catch (err) {
     throw wrap(err);

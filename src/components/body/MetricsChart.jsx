@@ -3,14 +3,14 @@ import { useState } from "react";
 import LineChart from "@/components/ui/LineChart";
 
 const RANGES = [
-  { label: "1B", days: 30 },
-  { label: "3B", days: 90 },
-  { label: "Semua", days: Infinity },
+  { label: "1M", days: 30 },
+  { label: "3M", days: 90 },
+  { label: "All", days: Infinity },
 ];
 
 const SERIES = [
-  { key: "weight", label: "Berat", unit: "kg" },
-  { key: "waist", label: "Pinggang", unit: "cm" },
+  { key: "weight", label: "Weight", unit: "kg" },
+  { key: "waist", label: "Waist", unit: "cm" },
   { key: "bmi", label: "BMI", unit: "" },
 ];
 
@@ -38,13 +38,13 @@ export default function MetricsChart({ metrics }) {
     <div className="card p-4">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
-          <p className="text-sm font-semibold text-ink">Tren {series.label}</p>
+          <p className="text-sm font-semibold text-ink">{series.label} Trend</p>
           {change != null && data.length >= 2 && (
             <p className="text-xs text-ink-muted mt-0.5 tabular">
               <span className={change < 0 ? "text-emerald-700 font-medium" : change > 0 ? "text-amber-700 font-medium" : ""}>
                 {change > 0 ? "+" : ""}{change} {series.unit}
               </span>{" "}
-              di rentang ini
+              in this range
             </p>
           )}
         </div>
@@ -68,7 +68,7 @@ export default function MetricsChart({ metrics }) {
         <LineChart data={data} unit={series.unit} />
       ) : (
         <p className="text-sm text-ink-muted text-center py-10">
-          Butuh minimal 2 kali timbang di rentang ini.
+          Needs at least 2 weigh-ins in this range.
         </p>
       )}
 

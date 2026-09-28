@@ -8,7 +8,7 @@ export default function TabNav() {
   if (pathname === "/login") return null;
 
   return (
-    <nav aria-label="Navigasi utama" className="hidden sm:flex items-center gap-1">
+    <nav aria-label="Main navigation" className="hidden sm:flex items-center gap-1">
       {TABS.map(({ label, href }) => {
         const active = pathname.startsWith(href);
         return (

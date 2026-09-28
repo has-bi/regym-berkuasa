@@ -16,7 +16,7 @@ import {
 const DEFAULT_REST = 90;
 
 function formatDate(dateStr) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("id-ID", {
+  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-GB", {
     weekday: "short", day: "numeric", month: "short",
   });
 }
@@ -26,7 +26,7 @@ function SetDots({ done, target }) {
   if (!target) return null;
   const total = Math.max(done, target);
   return (
-    <div className="flex items-center gap-1" aria-label={`${done} dari ${target} set`}>
+    <div className="flex items-center gap-1" aria-label={`${done} of ${target} sets`}>
       {Array.from({ length: Math.min(total, 8) }).map((_, i) => (
         <span
           key={i}
@@ -49,12 +49,12 @@ function SetRow({ log, index, onDelete, onRetry, onEdit }) {
     return (
       <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-red-50">
         <span className="w-5 text-xs font-semibold text-ink-faint tabular shrink-0">{index + 1}</span>
-        <span className="flex-1 text-sm font-medium text-red-700">Hapus set ini?</span>
+        <span className="flex-1 text-sm font-medium text-red-700">Delete this set?</span>
         <button onClick={() => onDelete(log._id)} className="btn btn-danger btn-sm px-2.5">
-          Hapus
+          Delete
         </button>
         <button onClick={() => setConfirming(false)} className="btn btn-ghost btn-sm px-2.5">
-          Batal
+          Cancel
         </button>
       </div>
     );
@@ -84,7 +84,7 @@ function SetRow({ log, index, onDelete, onRetry, onEdit }) {
         {!failed && (
           <button
             onClick={() => onEdit(log)}
-            aria-label={`Ubah set ${index + 1}`}
+            aria-label={`Edit set ${index + 1}`}
             disabled={saving}
             className="btn btn-ghost btn-icon shrink-0 disabled:opacity-30"
           >
@@ -94,7 +94,7 @@ function SetRow({ log, index, onDelete, onRetry, onEdit }) {
 
         <button
           onClick={() => setConfirming(true)}
-          aria-label={`Hapus set ${index + 1}`}
+          aria-label={`Delete set ${index + 1}`}
           className="btn btn-ghost btn-icon shrink-0"
         >
           <FiTrash2 size={13} />
@@ -106,14 +106,14 @@ function SetRow({ log, index, onDelete, onRetry, onEdit }) {
         <div className="flex items-center gap-2 px-3 pb-2.5">
           <FiAlertCircle size={13} className="text-amber-700 shrink-0" />
           <p className="flex-1 text-xs text-amber-800 leading-snug">
-            {log._error || "Nyangkut, belum kesimpen."}
+            {log._error || "Stuck. Not saved yet."}
           </p>
           <button
             onClick={() => onRetry(log._id)}
             className="btn btn-secondary btn-sm px-2.5 shrink-0"
           >
             <FiRefreshCw size={12} />
-            Kirim ulang
+            Retry
           </button>
         </div>
       )}
@@ -135,7 +135,7 @@ function ExerciseCard({
     ? `${programInfo.target_sets} × ${programInfo.target_reps}${
         programInfo.target_weight > 0 ? ` @ ${programInfo.target_weight}kg` : ""
       }`
-    : "Tambahan";
+    : "Extra";
 
   const lastSet = lastPerformance?.sets?.[lastPerformance.sets.length - 1];
 
@@ -186,7 +186,7 @@ function ExerciseCard({
           )}
           <button
             onClick={() => setOpen((o) => !o)}
-            aria-label={open ? "Tutup" : "Buka"}
+            aria-label={open ? "Collapse" : "Expand"}
             className="btn btn-ghost btn-icon"
           >
             <FiChevronDown
@@ -216,7 +216,7 @@ function ExerciseCard({
 
           {sets.length === 0 && lastSet && (
             <p className="px-3 py-2 text-xs text-ink-muted">
-              Terakhir angkat:{" "}
+              Last time:{" "}
               <span className="font-medium text-ink tabular">
                 {lastSet.weight} kg × {lastSet.reps}
               </span>
@@ -225,7 +225,7 @@ function ExerciseCard({
 
           <button onClick={onLogSet} className="btn btn-secondary btn-md w-full">
             <FiPlus size={15} />
-            {sets.length === 0 ? "Mulai set pertama" : `Lanjut set ${sets.length + 1}`}
+            {sets.length === 0 ? "Start first set" : `Log set ${sets.length + 1}`}
           </button>
         </div>
       )}
@@ -258,7 +258,7 @@ export default function WorkoutLogView() {
     return Boolean(e && (String(e.video_url || "").trim() || String(e.cues || "").trim()));
   };
 
-  const todayLabel = new Date(today + "T00:00:00").toLocaleDateString("id-ID", {
+  const todayLabel = new Date(today + "T00:00:00").toLocaleDateString("en-GB", {
     weekday: "long", day: "numeric", month: "long",
   });
 
@@ -291,7 +291,7 @@ export default function WorkoutLogView() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 pb-32 space-y-5">
       <header>
-        <h1 className="page-title">Angkat Besi</h1>
+        <h1 className="page-title">Lift</h1>
         <p className="page-sub capitalize">{todayLabel}</p>
       </header>
 
@@ -308,22 +308,22 @@ export default function WorkoutLogView() {
       {/* Session selector — scrolls rather than wrapping, keeping the header a fixed height */}
       <div>
         <div className="flex items-baseline justify-between gap-3 mb-2">
-          <p className="section-label">Mau hajar yang mana</p>
+          <p className="section-label">What are we hitting</p>
           {/* The schedule advises; tapping is the only thing that decides */}
           {suggestedSession && activeSession !== suggestedSession && (
             <button
               onClick={() => setActiveSession(suggestedSession)}
               className="text-xs text-ink-muted hover:text-ink underline underline-offset-2 shrink-0"
             >
-              Saran: {suggestedSession}
+              Suggested: {suggestedSession}
             </button>
           )}
         </div>
 
         {streak.todayPlan?.isRest && (
           <p className="text-xs text-ink-muted mb-2">
-            Jadwalnya istirahat hari ini — tapi kalau lagi pengen angkat, tinggal pilih. Streak
-            tetap aman entah lo latihan atau nggak.
+            Today&rsquo;s a rest day — but if you feel like lifting, just pick one. Your streak
+            is safe either way.
           </p>
         )}
         <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -347,17 +347,17 @@ export default function WorkoutLogView() {
         <div className="card p-4">
           <div className="flex items-end justify-between mb-2.5">
             <div>
-              <p className="text-xs text-ink-muted mb-0.5">Kemajuan</p>
+              <p className="text-xs text-ink-muted mb-0.5">Progress</p>
               <p className="text-lg font-semibold text-ink tabular leading-none">
                 {sessionProgress.done}
-                <span className="text-ink-faint font-normal">/{sessionProgress.target} set</span>
+                <span className="text-ink-faint font-normal">/{sessionProgress.target} sets</span>
               </p>
             </div>
             {sessionProgress.volume > 0 && (
               <div className="text-right">
-                <p className="text-xs text-ink-muted mb-0.5">Total diangkat</p>
+                <p className="text-xs text-ink-muted mb-0.5">Total lifted</p>
                 <p className="text-lg font-semibold text-ink tabular leading-none">
-                  {Math.round(sessionProgress.volume).toLocaleString("id-ID")}
+                  {Math.round(sessionProgress.volume).toLocaleString("en-US")}
                   <span className="text-ink-faint font-normal text-sm"> kg</span>
                 </p>
               </div>
@@ -374,7 +374,7 @@ export default function WorkoutLogView() {
           {sessionProgress.complete && (
             <p className="text-xs font-medium text-emerald-700 mt-2.5 flex items-center gap-1.5">
               <FiCheck size={13} strokeWidth={3} />
-              Program hari ini kelar semua. Boleh sombong.
+              Today&rsquo;s program is done. Brag a little.
             </p>
           )}
 
@@ -387,7 +387,7 @@ export default function WorkoutLogView() {
               }`}
             >
               <FiFlag size={15} />
-              Sudahi sesi &amp; lihat rapor
+              Finish session &amp; see report
             </button>
           )}
         </div>
@@ -414,13 +414,13 @@ export default function WorkoutLogView() {
 
           {todayExerciseNames.length === 0 && (
             <div className="card p-8 text-center">
-              <p className="text-sm font-medium text-ink mb-1">Kosong melompong</p>
+              <p className="text-sm font-medium text-ink mb-1">Nothing here</p>
               <p className="text-sm text-ink-muted mb-4">
-                Sesi {activeSession} belum ada isinya. Tambahin gerakan biar ada yang diangkat.
+                {activeSession} has no exercises yet. Add one so there&rsquo;s something to lift.
               </p>
               <button onClick={() => setShowPicker(true)} className="btn btn-primary btn-md mx-auto">
                 <FiPlus size={15} />
-                Tambahin gerakan
+                Add exercise
               </button>
             </div>
           )}
@@ -428,7 +428,7 @@ export default function WorkoutLogView() {
           {todayExerciseNames.length > 0 && (
             <button onClick={() => setShowPicker(true)} className="btn btn-ghost btn-md w-full border border-dashed border-line-strong">
               <FiPlus size={15} />
-              Nambah gerakan lain
+              Add another exercise
             </button>
           )}
         </div>
@@ -437,7 +437,7 @@ export default function WorkoutLogView() {
       {/* History */}
       {recentSessions.length > 0 && (
         <section>
-          <p className="section-label mb-2.5">Jejak lama</p>
+          <p className="section-label mb-2.5">History</p>
           <div className="card divide-y divide-line">
             {recentSessions.map((s) => (
               <div key={s.key} className="flex items-center justify-between px-4 py-3">
@@ -446,10 +446,10 @@ export default function WorkoutLogView() {
                   <p className="text-xs text-ink-muted mt-0.5">{formatDate(s.date)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-ink tabular">{s.sets} set</p>
+                  <p className="text-sm font-semibold text-ink tabular">{s.sets} sets</p>
                   {s.volume > 0 && (
                     <p className="text-xs text-ink-faint tabular mt-0.5">
-                      {Math.round(s.volume).toLocaleString("id-ID")} kg
+                      {Math.round(s.volume).toLocaleString("en-US")} kg
                     </p>
                   )}
                 </div>

@@ -34,7 +34,7 @@ export default function RestTimerBar({ remaining, duration, label, isDone, onExt
         <div className="flex items-center gap-3 px-4 py-3">
           <div className="min-w-0 flex-1">
             <p className="text-[11px] uppercase tracking-wider text-white/60 leading-none mb-1">
-              {isDone ? "Gas lagi!" : "Napas dulu"}
+              {isDone ? "Go again!" : "Catch your breath"}
             </p>
             <p className="text-sm text-white/80 truncate leading-none">{label}</p>
           </div>
@@ -46,7 +46,7 @@ export default function RestTimerBar({ remaining, duration, label, isDone, onExt
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => onExtend(30)}
-              aria-label="Tambah 30 detik"
+              aria-label="Add 30 seconds"
               className="h-9 px-2.5 inline-flex items-center gap-0.5 rounded-lg text-xs font-semibold
                          text-white/90 bg-white/10 hover:bg-white/20 transition-colors tabular"
             >
@@ -55,7 +55,7 @@ export default function RestTimerBar({ remaining, duration, label, isDone, onExt
             </button>
             <button
               onClick={onStop}
-              aria-label="Lewati istirahat"
+              aria-label="Skip rest"
               className="h-9 w-9 inline-flex items-center justify-center rounded-lg
                          text-white/90 bg-white/10 hover:bg-white/20 transition-colors"
             >

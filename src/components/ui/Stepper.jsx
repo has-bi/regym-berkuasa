@@ -31,7 +31,7 @@ export default function Stepper({ label, value, onChange, step = 1, min = 0, suf
         <button
           type="button"
           onClick={() => nudge(-step)}
-          aria-label={`Kurangi ${label}`}
+          aria-label={`Decrease ${label}`}
           className="btn btn-secondary h-14 w-14 shrink-0 rounded-xl"
         >
           <FiMinus size={20} />
@@ -62,7 +62,7 @@ export default function Stepper({ label, value, onChange, step = 1, min = 0, suf
         <button
           type="button"
           onClick={() => nudge(step)}
-          aria-label={`Tambah ${label}`}
+          aria-label={`Increase ${label}`}
           className="btn btn-secondary h-14 w-14 shrink-0 rounded-xl"
         >
           <FiPlus size={20} />

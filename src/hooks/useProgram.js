@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { fetchBundle, deserializeBundle } from "@/actions/data";
 
 /** Fallback only — real session names come from the database. */
-export const SESSIONS = ["Upper A", "Lower A", "Upper B", "Lower B", "Kondisioning"];
+export const SESSIONS = ["Push", "Pull", "Legs", "Upper", "Conditioning"];
 
 /**
  * Read-only view of the program.

@@ -16,7 +16,7 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      aria-label="Keluar"
+      aria-label="Log out"
       className="btn btn-ghost btn-md w-11 px-0"
     >
       <FiLogOut size={16} />

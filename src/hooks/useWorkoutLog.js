@@ -4,7 +4,7 @@ import { workoutApi, fetchBundle, deserializeBundle } from "@/actions/data";
 import { buildScheduleMap, computeStreak, recentDays } from "@/lib/streak";
 
 /** Fallback only — the real list comes from whatever sessions the data defines. */
-export const SESSIONS = ["Upper A", "Lower A", "Upper B", "Lower B", "Kondisioning"];
+export const SESSIONS = ["Push", "Pull", "Legs", "Upper", "Conditioning"];
 
 function getLocalToday() {
   const d = new Date();

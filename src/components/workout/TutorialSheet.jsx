@@ -23,7 +23,7 @@ export default function TutorialSheet({ exercise, programInfo, onClose }) {
   const cues = String(exercise?.cues || "").trim();
   const ytId = youtubeId(videoUrl);
 
-  // Cues are authored in the Sheet; split so each point reads as its own line.
+  // Cues come from the exercises table; split so each point reads as its own line.
   const points = cues
     .split(/\r?\n|(?<=\.)\s+(?=[A-Z])/)
     .map((s) => s.trim())
@@ -72,14 +72,14 @@ export default function TutorialSheet({ exercise, programInfo, onClose }) {
             className="btn btn-secondary btn-md w-full"
           >
             <FiPlayCircle size={16} />
-            Buka video
+            Open video
             <FiExternalLink size={13} className="text-ink-faint" />
           </a>
         ) : null}
 
         {points.length > 0 ? (
           <div>
-            <p className="section-label mb-2">Jangan sampai salah</p>
+            <p className="section-label mb-2">Form cues</p>
             <ul className="space-y-2">
               {points.map((p, i) => (
                 <li key={i} className="flex gap-2.5 text-sm text-ink leading-relaxed">
@@ -91,18 +91,18 @@ export default function TutorialSheet({ exercise, programInfo, onClose }) {
           </div>
         ) : (
           <p className="text-sm text-ink-muted">
-            Belum ada catatan tekniknya buat gerakan ini.
+            No technique notes for this exercise yet.
           </p>
         )}
 
         {!videoUrl && (
           <p className="text-xs text-ink-faint">
-            Belum ada video buat gerakan ini.
+            No video for this exercise yet.
           </p>
         )}
 
         {exercise?.equipment && (
-          <p className="text-xs text-ink-faint">Alat: {exercise.equipment}</p>
+          <p className="text-xs text-ink-faint">Equipment: {exercise.equipment}</p>
         )}
       </div>
     </Sheet>

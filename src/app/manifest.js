@@ -8,7 +8,7 @@ export default function manifest() {
   return {
     name: "Latihan — Fitness & Body Tracker",
     short_name: "Latihan",
-    description: "Catat latihan, pantau body metrics, dan jaga streak.",
+    description: "Log workouts, track body metrics, and keep your streak.",
     start_url: "/log",
     scope: "/",
     display: "standalone",
@@ -26,7 +26,7 @@ export default function manifest() {
       { src: "/icon-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: "Log Latihan", url: "/log" },
+      { name: "Log Workout", url: "/log" },
       { name: "Body Metrics", url: "/body" },
       { name: "Progress", url: "/summary" },
     ],
