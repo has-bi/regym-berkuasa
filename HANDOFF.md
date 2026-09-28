@@ -32,6 +32,21 @@ Sudah diverifikasi lawan Postgres lokal: schema apply, migrasi jalan + aman
 di-rerun, 4 layar render tanpa error, 1 request per layar, dan add / retry /
 edit / delete semuanya benar.
 
+## Status per 28 Sep 2026
+
+- **Langkah 1 & 2 sudah selesai.** Schema sudah di Neon, data Sheet sudah
+  dimigrasi dan jumlah barisnya cocok (112 / 71 / 44 / 7 / 7).
+- **Program diganti ke Push / Pull / Legs** lewat `db/program-ppl.sql`:
+  Senin Push · Selasa Pull · Rabu Legs · Kamis rest · Jumat Upper ·
+  Sabtu Conditioning · Minggu rest. Katalog exercise sekarang bahasa Inggris.
+- **Semua copy di app sudah bahasa Inggris**, termasuk nama hari di
+  `schedule` (`Monday` … `Sunday`).
+- **Jangan jalankan migrasi Sheet lagi** — sheet-nya masih pakai nama hari
+  Indonesia, jadi rerun bakal nambah baris schedule dobel.
+- **Urutan langkah 3 & 4 dibalik:** deploy dulu, baru hapus `APPS_SCRIPT_URL`.
+  Production sekarang masih jalan pakai Sheets, jadi hapus env var duluan
+  bikin app live rusak sampai merge ke-deploy.
+
 ## Yang perlu kamu kerjakan
 
 ### 1. Apply schema ke Neon
@@ -82,10 +97,10 @@ migrasi diverifikasi. `AUTH_PIN_HASH` dan `SESSION_SECRET` biarkan.
 ### 4. Deploy & cek
 
 Merge branch-nya, tunggu Vercel deploy, lalu buka appnya. Yang harus benar:
-- 4 layar (Angkat / Badan / Program / Rapor) tampil tanpa kartu error
+- 4 layar (Lift / Body / Program / Report) tampil tanpa kartu error
 - Data lama muncul — streak dan riwayat sesuai
 - Catat 1 set baru, refresh, set-nya masih ada
-- Tab Program menampilkan semua sesi
+- Tab Program menampilkan Push, Pull, Legs, Upper, Conditioning
 
 ### 5. Rotate kredensial Neon
 

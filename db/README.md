@@ -15,7 +15,19 @@ APPS_SCRIPT_URL=<your /exec url> DATABASE_URL=<neon url> \
 # 3. Move it
 APPS_SCRIPT_URL=<your /exec url> DATABASE_URL=<neon url> \
   node scripts/migrate-sheets-to-pg.mjs
+
+# 4. Load the Push / Pull / Legs program and the English exercise catalogue
+psql "$DATABASE_URL" -f db/program-ppl.sql
 ```
+
+Once `program-ppl.sql` has run, do not run the Sheets migration again. The
+sheet still names days in Indonesian (`Senin`, …), so a second run would add
+those as extra schedule rows beside the English ones.
+
+Run admin SQL over the unpooled URL (host without `-pooler`). Neon's pooler
+runs in transaction mode, so a session-level `SET` from a tool such as
+`pg_dump` — which empties `search_path` — can stick to a pooled server
+connection and make the app's queries fail with "relation does not exist".
 
 The migration is safe to re-run: every insert is `ON CONFLICT DO NOTHING`
 against a natural key, so a second run reports zeroes instead of duplicating.
@@ -54,5 +66,11 @@ load, and treating 0 as "unset" is what made those sets impossible to log.
 
 The Sheet was the authoring surface and no longer is. Until the app grows
 editing screens, `programs`, `schedule` and `exercises` are changed with SQL —
-the Neon console has a query editor. `workout_logs` and `body_metrics` are
+the Neon console has a query editor. `db/program-ppl.sql` is the current
+program in full; editing it and re-running it is the simplest way to make a
+larger change, since it resets both tables to exactly what the file says.
+
+`schedule.day_of_week` must be an English weekday name (`Monday` … `Sunday`),
+matching `DAY_NAMES` in `src/lib/streak.js`. A day with no matching row is
+treated as rest. `workout_logs` and `body_metrics` are
 written by the app and need no manual editing.
