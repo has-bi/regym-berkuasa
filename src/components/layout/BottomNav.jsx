@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiActivity, FiUser, FiTrendingUp } from "react-icons/fi";
+import { FiActivity, FiUser, FiCoffee, FiTrendingUp } from "react-icons/fi";
 
 export const TABS = [
   { label: "Lift", href: "/log", icon: FiActivity },
   { label: "Body", href: "/body", icon: FiUser },
+  { label: "Food", href: "/food", icon: FiCoffee },
   { label: "Report", href: "/summary", icon: FiTrendingUp },
 ];
 
@@ -19,7 +20,7 @@ export default function BottomNav() {
       className="sm:hidden fixed inset-x-0 bottom-0 z-30 bg-surface/95 backdrop-blur
                  border-t border-line pb-[env(safe-area-inset-bottom)]"
     >
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-4">
         {TABS.map(({ label, href, icon: Icon }) => {
           const active = pathname.startsWith(href);
           return (
