@@ -11,7 +11,6 @@ const RANGES = [
 const SERIES = [
   { key: "weight", label: "Weight", unit: "kg" },
   { key: "waist", label: "Waist", unit: "cm" },
-  { key: "bmi", label: "BMI", unit: "" },
 ];
 
 export default function MetricsChart({ metrics }) {

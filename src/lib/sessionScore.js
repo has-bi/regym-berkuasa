@@ -1,12 +1,11 @@
 /**
  * Scores a finished session out of 100 and picks the flavour text.
  *
- * Four things get points, and the sheet shows the split so the number is never
+ * Three things get points, and the sheet shows the split so the number is never
  * a black box:
- *   completion  40  did you finish what was programmed
+ *   completion  50  did you finish what was programmed
  *   progression 30  volume against the last time you ran this same session
  *   records     20  personal bests set today
- *   effort      10  average RPE landing in the productive 7–9 band
  *
  * Everything here is deterministic. Reopening the summary must show the same
  * words, so the flavour line is chosen by hashing date+session rather than at
@@ -124,19 +123,17 @@ export function scoreSession({ todaySets, priorSets = [], targetSets = 0, prCoun
       priorVolume,
       volumeDelta: null,
       prCount: 0,
-      avgRpe: null,
       breakdown: [
-        { label: "Finished the program", value: 0, max: 40 },
+        { label: "Finished the program", value: 0, max: 50 },
         { label: "Up from last session", value: 0, max: 30 },
         { label: "New records", value: 0, max: 20 },
-        { label: "Effort in the sweet spot", value: 0, max: 10 },
       ],
     };
   }
 
   // 1. Completion — the biggest slice, because finishing the plan is the job.
   const completionRatio = targetSets > 0 ? clamp(done / targetSets, 0, 1) : done > 0 ? 1 : 0;
-  const completion = Math.round(completionRatio * 40);
+  const completion = Math.round(completionRatio * 50);
 
   // 2. Progression against the same session last time. With nothing to compare
   //    against, award the neutral middle rather than punishing a first run.
@@ -156,19 +153,7 @@ export function scoreSession({ todaySets, priorSets = [], targetSets = 0, prCoun
   // 3. Personal bests.
   const records = clamp(prCount * 10, 0, 20);
 
-  // 4. Effort. RPE 7–9 is where the work actually happens; sandbagging and
-  //    grinding every set to failure both score lower.
-  const rpes = todaySets.filter((l) => l.rpe > 0).map((l) => l.rpe);
-  const avgRpe = rpes.length ? rpes.reduce((a, b) => a + b, 0) / rpes.length : null;
-  let intensity = 5;
-  if (avgRpe !== null) {
-    if (avgRpe >= 7 && avgRpe <= 9) intensity = 10;
-    else if (avgRpe > 9) intensity = 7;
-    else if (avgRpe >= 6) intensity = 7;
-    else intensity = 4;
-  }
-
-  const total = clamp(completion + progression + records + intensity, 0, 100);
+  const total = clamp(completion + progression + records, 0, 100);
 
   return {
     total,
@@ -178,12 +163,10 @@ export function scoreSession({ todaySets, priorSets = [], targetSets = 0, prCoun
     priorVolume,
     volumeDelta,
     prCount,
-    avgRpe,
     breakdown: [
-      { label: "Finished the program", value: completion, max: 40 },
+      { label: "Finished the program", value: completion, max: 50 },
       { label: "Up from last session", value: progression, max: 30 },
       { label: "New records", value: records, max: 20 },
-      { label: "Effort in the sweet spot", value: intensity, max: 10 },
     ],
   };
 }

@@ -7,6 +7,7 @@ import ExercisePicker from "./ExercisePicker";
 import RestTimerBar from "./RestTimerBar";
 import StreakCard from "./StreakCard";
 import WalkCard from "./WalkCard";
+import Checklist from "./Checklist";
 import TutorialSheet from "./TutorialSheet";
 import SessionSummarySheet from "./SessionSummarySheet";
 import {
@@ -77,10 +78,6 @@ function SetRow({ log, index, onDelete, onRetry, onEdit }) {
         >
           {log.weight} kg <span className="text-ink-faint font-normal mx-0.5">×</span> {log.reps}
         </span>
-
-        {log.rpe ? (
-          <span className="text-xs text-ink-muted tabular shrink-0">RPE {log.rpe}</span>
-        ) : null}
 
         {!failed && (
           <button
@@ -238,7 +235,7 @@ export default function WorkoutLogView() {
   const {
     loading, error, today, activeSession, setActiveSession, suggestedSession,
     todayByExercise, todayExerciseNames, sessionProgram, sessionProgress,
-    sessions, streak, weekStrip,
+    sessions, streak, weekPlan, warmups, cooldowns,
     stepsToday, weekSteps, saveSteps,
     todaySessionSets, priorSessionSets, todayPrCount,
     exercises, recentSessions,
@@ -281,9 +278,9 @@ export default function WorkoutLogView() {
     ? Math.min(100, (sessionProgress.done / sessionProgress.target) * 100)
     : 0;
 
-  const handleConfirm = (weight, reps, rpe) => {
+  const handleConfirm = (weight, reps) => {
     const name = loggingExercise;
-    logSet(name, weight, reps, rpe);
+    logSet(name, weight, reps);
     setLoggingExercise(null);
 
     const rest = sessionProgram.find((p) => p.exercise_name === name)?.rest_seconds || DEFAULT_REST;
@@ -305,7 +302,7 @@ export default function WorkoutLogView() {
       )}
 
       {/* Streak + this week, driven by the schedule */}
-      <StreakCard streak={streak} weekStrip={weekStrip} />
+      <StreakCard streak={streak} weekPlan={weekPlan} />
 
       {/* Walking sits outside the streak on purpose — see WalkCard */}
       <WalkCard today={today} steps={stepsToday} weekSteps={weekSteps} onSave={saveSteps} />
@@ -401,6 +398,14 @@ export default function WorkoutLogView() {
       {/* Exercises */}
       {activeSession && (
         <div className="space-y-3">
+          <Checklist
+            title="Warm-up"
+            items={warmups}
+            storageKey={`checks:${today}:${activeSession}:warmup`}
+            hasTutorial={hasTutorial}
+            onShowTutorial={setTutorialFor}
+          />
+
           {todayExerciseNames.map((name) => (
             <ExerciseCard
               key={name}
@@ -436,6 +441,14 @@ export default function WorkoutLogView() {
               Add another exercise
             </button>
           )}
+
+          <Checklist
+            title="Cool-down"
+            items={cooldowns}
+            storageKey={`checks:${today}:${activeSession}:cooldown`}
+            hasTutorial={hasTutorial}
+            onShowTutorial={setTutorialFor}
+          />
         </div>
       )}
 
@@ -497,12 +510,12 @@ export default function WorkoutLogView() {
           setNumber={editingSet.set_number}
           prefillWeight={editingSet.weight}
           prefillReps={editingSet.reps}
-          prefillRpe={editingSet.rpe}
           lastPerformance={getLastPerformance(editingSet.exercise_name)}
           personalBest={getPersonalBest(editingSet.exercise_name)}
           targetReps={sessionProgram.find((p) => p.exercise_name === editingSet.exercise_name)?.target_reps}
-          onConfirm={(weight, reps, rpe) => {
-            updateSet(editingSet._id, { weight, reps, rpe });
+          onConfirm={(weight, reps) => {
+            // RPE is no longer asked for; keep whatever an older set recorded.
+            updateSet(editingSet._id, { weight, reps, rpe: editingSet.rpe });
             setEditingSet(null);
           }}
           onClose={() => setEditingSet(null)}

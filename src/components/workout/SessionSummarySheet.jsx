@@ -88,14 +88,6 @@ export default function SessionSummarySheet({
               <VolumeDelta delta={score.volumeDelta} />
             </span>
           </div>
-          {score.avgRpe !== null && (
-            <div className="flex items-center justify-between px-4 py-3">
-              <span className="text-sm text-ink-muted">Average RPE</span>
-              <span className="text-sm font-semibold text-ink tabular">
-                {score.avgRpe.toFixed(1)}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Breakdown — the score should never look like a magic number */}

@@ -34,8 +34,11 @@ export function useBodyMetrics() {
 
   const latest = useMemo(() => metrics[0] ?? null, [metrics]);
 
-  const addMetric = async ({ date, weight, waist, height }) => {
-    const bmi = calcBMI(parseFloat(weight), parseFloat(height));
+  const addMetric = async ({ date, weight, waist }) => {
+    // Height is no longer asked for: it carries over from the last entry, and
+    // BMI is still stored so older rows and new ones stay comparable.
+    const height = latest?.height || 173;
+    const bmi = calcBMI(parseFloat(weight), height);
     const payload = {
       // Same idempotency guard as workout sets: a retry after a timeout must
       // not create a second measurement.
@@ -45,7 +48,7 @@ export function useBodyMetrics() {
       date: date || getLocalToday(),
       weight: parseFloat(weight) || 0,
       waist: parseFloat(waist) || 0,
-      height: parseFloat(height) || 173,
+      height,
       bmi,
     };
     // The row is returned as { id, duplicate }; a duplicate still means the

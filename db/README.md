@@ -47,7 +47,7 @@ two cardio slots, one HIIT slot and a rest day, aimed at waist and visceral
 fat. It replaces `programs` and `schedule` wholesale, so it is safe to re-run
 when the block changes. `workout_logs` keeps its own session names, so
 history under earlier programs (Upper/Lower, Push/Pull/Legs) stays readable
-even though those sessions no longer appear in the Program tab.
+even though those sessions are no longer offered on the Lift screen.
 
 Daily walking lives in `daily_activity`, one row per date, not in
 `workout_logs`: a walk logged as a session would turn every day into a

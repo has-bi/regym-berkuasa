@@ -64,12 +64,10 @@ export default function SummaryView() {
     if (!mine.length) return null;
 
     const best = mine.reduce((b, l) => (l.weight > b.weight ? l : b), mine[0]);
-    const rpes = mine.filter((l) => l.rpe > 0);
 
     return {
       best,
       totalSets: mine.length,
-      avgRpe: rpes.length ? (rpes.reduce((s, l) => s + l.rpe, 0) / rpes.length).toFixed(1) : null,
       volume: mine.reduce((s, l) => s + l.weight * l.reps, 0),
     };
   }, [logs, selected]);
@@ -202,12 +200,6 @@ export default function SummaryView() {
                   <div className="flex-1 px-3 py-3">
                     <p className="text-xs text-ink-muted mb-1">Total set</p>
                     <p className="text-lg font-semibold text-ink tabular leading-none">{stats.totalSets}</p>
-                  </div>
-                  <div className="flex-1 px-3 py-3">
-                    <p className="text-xs text-ink-muted mb-1">Average RPE</p>
-                    <p className="text-lg font-semibold text-ink tabular leading-none">
-                      {stats.avgRpe ?? "—"}
-                    </p>
                   </div>
                 </div>
               )}

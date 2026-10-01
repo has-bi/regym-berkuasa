@@ -4,18 +4,6 @@ import { useBodyMetrics } from "@/hooks/useBodyMetrics";
 import MetricsChart from "./MetricsChart";
 import { FiTrash2, FiPlus, FiX, FiArrowDown, FiArrowUp, FiAlertCircle } from "react-icons/fi";
 
-const BMI_BANDS = [
-  { max: 18.5, label: "Underweight", tone: "text-sky-700" },
-  { max: 25, label: "Normal", tone: "text-emerald-700" },
-  { max: 30, label: "Overweight", tone: "text-amber-700" },
-  { max: Infinity, label: "Obese", tone: "text-red-600" },
-];
-
-function bmiBand(bmi) {
-  if (!bmi) return { label: "", tone: "text-ink" };
-  return BMI_BANDS.find((b) => bmi < b.max);
-}
-
 function getLocalToday() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -28,14 +16,14 @@ const formatDate = (d) =>
  * A measurement on its own says little — the change since the last one is the
  * signal, so every stat carries its delta.
  */
-function Stat({ label, value, unit, delta, tone, caption }) {
+function Stat({ label, value, unit, delta, caption }) {
   const moved = delta != null && Math.abs(delta) >= 0.05;
   const down = delta < 0;
 
   return (
     <div className="flex-1 px-4 py-3.5 min-w-0">
       <p className="text-xs text-ink-muted mb-1">{label}</p>
-      <p className={`text-2xl font-semibold tabular leading-none ${tone || "text-ink"}`}>
+      <p className="text-2xl font-semibold text-ink tabular leading-none">
         {value ?? "—"}
         {unit && <span className="text-sm font-normal text-ink-faint ml-1">{unit}</span>}
       </p>
@@ -59,7 +47,7 @@ export default function BodyMetricsView() {
   const { loading, error, metrics, latest, addMetric, deleteMetric } = useBodyMetrics();
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ weight: "", waist: "", height: "173", date: getLocalToday() });
+  const [form, setForm] = useState({ weight: "", waist: "", date: getLocalToday() });
 
   const previous = metrics[1] ?? null;
 
@@ -68,7 +56,7 @@ export default function BodyMetricsView() {
     if (!form.weight || !form.waist) return;
     setSaving(true);
     await addMetric(form);
-    setForm({ weight: "", waist: "", height: form.height, date: getLocalToday() });
+    setForm({ weight: "", waist: "", date: getLocalToday() });
     setShowForm(false);
     setSaving(false);
   };
@@ -82,8 +70,6 @@ export default function BodyMetricsView() {
       </div>
     );
   }
-
-  const band = bmiBand(latest?.bmi);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
@@ -126,17 +112,8 @@ export default function BodyMetricsView() {
             delta={previous ? latest.waist - previous.waist : null}
             caption={previous ? "no change" : "baseline"}
           />
-          <Stat
-            label="BMI"
-            value={latest.bmi}
-            tone={band.tone}
-            delta={previous ? latest.bmi - previous.bmi : null}
-            caption={band.label}
-          />
         </div>
       )}
-
-      {latest && <p className="text-xs text-ink-faint -mt-2 px-1">{band.label} · height {latest.height} cm</p>}
 
       {metrics.length >= 2 && <MetricsChart metrics={metrics} />}
 
@@ -147,7 +124,6 @@ export default function BodyMetricsView() {
             {[
               { label: "Weight (kg)", key: "weight", step: "0.1", placeholder: "84.5", required: true },
               { label: "Waist (cm)", key: "waist", step: "0.5", placeholder: "98", required: true },
-              { label: "Height (cm)", key: "height", step: "1", placeholder: "173" },
             ].map(({ label, key, step, placeholder, required }) => (
               <div key={key}>
                 <label htmlFor={`bm-${key}`} className="field-label">{label}</label>
@@ -197,7 +173,7 @@ export default function BodyMetricsView() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-ink">{formatDate(m.date)}</p>
                     <p className="text-xs text-ink-muted mt-0.5 tabular">
-                      {m.weight} kg · {m.waist} cm · BMI {m.bmi}
+                      {m.weight} kg · {m.waist} cm
                     </p>
                   </div>
                   {d != null && Math.abs(d) >= 0.05 && (

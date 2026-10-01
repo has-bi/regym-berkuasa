@@ -4,15 +4,6 @@ import Sheet from "@/components/ui/Sheet";
 import Stepper from "@/components/ui/Stepper";
 import { FiTrendingUp, FiAward } from "react-icons/fi";
 
-const RPE_OPTIONS = [6, 7, 8, 9, 10];
-const RPE_HINT = {
-  6: "Easy · 4+ reps left",
-  7: "Moderate · 3 reps left",
-  8: "Hard · 2 reps left",
-  9: "Very hard · 1 rep left",
-  10: "Max · failure",
-};
-
 /** First number in a target like "8-12", "2-3 min" or "30 sec per side". */
 function leadingNumber(text) {
   const m = String(text ?? "").match(/\d+/);
@@ -38,7 +29,6 @@ export default function SetInputModal({
   lastPerformance,
   personalBest,
   targetReps,
-  prefillRpe,
   mode = "create",
   onConfirm,
   onClose,
@@ -52,7 +42,6 @@ export default function SetInputModal({
     const fromTarget = leadingNumber(targetReps);
     return fromTarget != null ? String(fromTarget) : "";
   });
-  const [rpe, setRpe] = useState(prefillRpe ?? 7);
 
   // Blank means bodyweight, not "unset" — plenty of exercises carry no load.
   const w = weight.trim() === "" ? 0 : parseFloat(weight);
@@ -87,7 +76,7 @@ export default function SetInputModal({
       footer={
         <div>
           <button
-            onClick={() => valid && onConfirm(w, r, rpe)}
+            onClick={() => valid && onConfirm(w, r)}
             disabled={!valid}
             className="btn btn-primary btn-lg w-full"
           >
@@ -114,9 +103,6 @@ export default function SetInputModal({
                 </p>
                 <p className="text-sm font-semibold text-ink tabular">
                   {referenceSet.weight} kg × {referenceSet.reps}
-                  {referenceSet.rpe ? (
-                    <span className="font-normal text-ink-muted"> @ RPE {referenceSet.rpe}</span>
-                  ) : null}
                 </p>
               </div>
               {delta !== null && delta !== 0 && (
@@ -169,30 +155,6 @@ export default function SetInputModal({
                 : null
           }
         />
-
-        <div>
-          <div className="flex items-baseline justify-between mb-1.5">
-            <label className="text-xs font-medium text-ink-muted">RPE</label>
-            <span className="text-xs text-ink-faint">{RPE_HINT[rpe]}</span>
-          </div>
-          <div className="grid grid-cols-5 gap-1.5">
-            {RPE_OPTIONS.map((v) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => setRpe(v)}
-                aria-pressed={rpe === v}
-                className={`h-12 rounded-xl text-sm font-semibold tabular transition-colors ${
-                  rpe === v
-                    ? "bg-ink text-white"
-                    : "bg-surface-raised text-ink-muted hover:text-ink"
-                }`}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-        </div>
 
         {isPR && (
           <div className="flex items-center gap-2 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-xl px-3.5 py-3">

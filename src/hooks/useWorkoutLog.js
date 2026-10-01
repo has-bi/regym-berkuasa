@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { workoutApi, activityApi, fetchBundle, deserializeBundle } from "@/actions/data";
-import { buildScheduleMap, computeStreak, recentDays } from "@/lib/streak";
+import { buildScheduleMap, computeStreak, DAY_NAMES, DAY_SHORT } from "@/lib/streak";
 
 /** Fallback only — the real list comes from whatever sessions the data defines. */
 export const SESSIONS = ["Full Body A", "Full Body B", "Full Body C", "Cardio", "HIIT"];
@@ -10,6 +10,16 @@ function getLocalToday() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
+
+/** Monday-first, for reading the week in order. Indexes into DAY_NAMES. */
+const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+/**
+ * Program rows split by sort_order: warm-ups sort below 1, cool-downs from 90,
+ * and the work itself in between. Only the work is logged set by set.
+ */
+const isWarmup = (p) => p.sort_order < 1;
+const isCooldown = (p) => p.sort_order >= 90;
 
 /** Sets count toward volume as weight × reps; bodyweight work still counts reps. */
 function setVolume(l) {
@@ -64,21 +74,32 @@ export function useWorkoutLog() {
     [logs, scheduleMap, today]
   );
 
-  const weekStrip = useMemo(
-    () => recentDays(logs, scheduleMap, today, 7),
-    [logs, scheduleMap, today]
-  );
+  /** The week at a glance, Monday first: one entry per day. */
+  const weekPlan = useMemo(() => {
+    const todayIdx = new Date(today + "T00:00:00").getDay();
+    return WEEK_ORDER.map((i) => {
+      const entry = scheduleMap[DAY_NAMES[i]];
+      return {
+        day: DAY_SHORT[i],
+        session: entry && !entry.isRest ? entry.session : "",
+        isToday: i === todayIdx,
+      };
+    });
+  }, [scheduleMap, today]);
 
-  /** Session names come from the data, falling back to the built-in split. */
+  /**
+   * Session names in the order the week runs, then any the schedule does not
+   * use. Falls back to the built-in split when the data defines none.
+   */
   const sessions = useMemo(() => {
-    const fromSheet = [
+    const fromData = [
       ...new Set([
-        ...schedule.map((s) => String(s.session || "").trim()),
+        ...weekPlan.map((d) => d.session),
         ...programs.map((p) => String(p.session || "").trim()),
       ]),
     ].filter((s) => s && s.toUpperCase() !== "REST");
-    return fromSheet.length ? fromSheet : SESSIONS;
-  }, [schedule, programs]);
+    return fromData.length ? fromData : SESSIONS;
+  }, [weekPlan, programs]);
 
   /**
    * Today's session comes from the schedule rather than a rotation guess, so
@@ -118,11 +139,19 @@ export function useWorkoutLog() {
     [programs, activeSession]
   );
 
+  const warmups = useMemo(() => sessionProgram.filter(isWarmup), [sessionProgram]);
+  const cooldowns = useMemo(() => sessionProgram.filter(isCooldown), [sessionProgram]);
+  const mainProgram = useMemo(
+    () => sessionProgram.filter((p) => !isWarmup(p) && !isCooldown(p)),
+    [sessionProgram]
+  );
+
+  /** The lifts shown as cards: the programmed work, then anything else logged today. */
   const todayExerciseNames = useMemo(() => {
-    const programNames = sessionProgram.map((p) => p.exercise_name);
+    const programNames = mainProgram.map((p) => p.exercise_name);
     const extras = Object.keys(todayByExercise).filter((n) => !programNames.includes(n));
     return [...programNames, ...extras];
-  }, [sessionProgram, todayByExercise]);
+  }, [mainProgram, todayByExercise]);
 
   const stepsToday = useMemo(
     () => activity.find((a) => a.date === today)?.steps ?? 0,
@@ -192,15 +221,18 @@ export function useWorkoutLog() {
     return count;
   }, [todayByExercise, logs, today]);
 
-  /** Overall completion for the session header: sets done vs. sets programmed. */
+  /**
+   * Overall completion for the session header: sets done vs. sets programmed.
+   * Warm-ups and cool-downs are ticked off, not logged, so they do not count.
+   */
   const sessionProgress = useMemo(() => {
-    const target = sessionProgram.reduce((sum, p) => sum + (p.target_sets || 0), 0);
+    const target = mainProgram.reduce((sum, p) => sum + (p.target_sets || 0), 0);
     const done = Object.values(todayByExercise).reduce((sum, arr) => sum + arr.length, 0);
     const volume = Object.values(todayByExercise)
       .flat()
       .reduce((sum, l) => sum + setVolume(l), 0);
     return { done, target, volume, complete: target > 0 && done >= target };
-  }, [sessionProgram, todayByExercise]);
+  }, [mainProgram, todayByExercise]);
 
   /**
    * The last time this exercise was trained on a different day — shown in the
@@ -319,7 +351,7 @@ export function useWorkoutLog() {
   }, []);
 
   const logSet = useCallback(
-    async (exerciseName, weight, reps, rpe, notes = "") => {
+    async (exerciseName, weight, reps, notes = "") => {
       const existing = todayByExercise[exerciseName] || [];
       const setNumber = existing.length + 1;
       // Numbers stay numbers: the columns are numeric/integer, so stringifying
@@ -331,7 +363,7 @@ export function useWorkoutLog() {
         set_number: setNumber,
         weight,
         reps,
-        rpe: rpe || null,
+        rpe: null,
         notes,
       };
 
@@ -346,7 +378,7 @@ export function useWorkoutLog() {
       const tempId = `temp_${clientId}`;
       setLogs((prev) => [
         ...prev,
-        { _id: tempId, ...payload, weight, reps, rpe, set_number: setNumber, _payload: payload, _status: "saving" },
+        { _id: tempId, ...payload, weight, reps, set_number: setNumber, _payload: payload, _status: "saving" },
       ]);
 
       await push(tempId, payload);
@@ -430,7 +462,9 @@ export function useWorkoutLog() {
     weekSteps,
     saveSteps,
     streak,
-    weekStrip,
+    weekPlan,
+    warmups,
+    cooldowns,
     exercises,
     recentSessions,
     getLastWeight,

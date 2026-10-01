@@ -110,11 +110,11 @@ migrasi diverifikasi. `AUTH_PIN_HASH` dan `SESSION_SECRET` biarkan.
 ### 4. Deploy & cek
 
 Merge branch-nya, tunggu Vercel deploy, lalu buka appnya. Yang harus benar:
-- 4 layar (Lift / Body / Program / Report) tampil tanpa kartu error,
+- 3 layar (Lift / Body / Report) tampil tanpa kartu error,
   dan kartu "Steps today" muncul di layar Lift
 - Data lama muncul — streak dan riwayat sesuai
 - Catat 1 set baru, refresh, set-nya masih ada
-- Tab Program menampilkan Full Body A, B, C, Cardio, HIIT
+- Pilihan sesi di layar Lift: Full Body A, Cardio, Full Body B, HIIT, Full Body C
 
 ### 5. Rotate kredensial Neon
 

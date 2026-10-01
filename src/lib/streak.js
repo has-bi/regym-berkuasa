@@ -122,32 +122,3 @@ export function computeStreak(logs, scheduleMap, todayStr) {
     pendingToday: !todayPlan.isRest && !trainedToday,
   };
 }
-
-/** Last `count` days, oldest first — drives the week strip. */
-export function recentDays(logs, scheduleMap, todayStr, count = 7) {
-  const trained = buildTrainedSet(logs);
-  const today = todayStr || toDateStr(new Date());
-  const out = [];
-
-  for (let i = count - 1; i >= 0; i--) {
-    const date = addDays(today, -i);
-    const plan = getPlanFor(date, scheduleMap);
-    const didTrain = trained.has(date);
-    const isToday = date === today;
-
-    let status;
-    if (didTrain) status = "done";
-    else if (plan.isRest) status = "rest";
-    else if (isToday) status = "pending";
-    else status = "missed";
-
-    out.push({
-      date,
-      isToday,
-      status,
-      session: plan.session,
-      dayShort: DAY_SHORT[parseDateStr(date).getDay()],
-    });
-  }
-  return out;
-}
