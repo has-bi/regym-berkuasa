@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { workoutApi, fetchBundle, deserializeBundle } from "@/actions/data";
+import { workoutApi, activityApi, fetchBundle, deserializeBundle } from "@/actions/data";
 import { buildScheduleMap, computeStreak, recentDays } from "@/lib/streak";
 
 /** Fallback only — the real list comes from whatever sessions the data defines. */
@@ -22,6 +22,7 @@ export function useWorkoutLog() {
   const [exercises, setExercises] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [schedule, setSchedule] = useState([]);
+  const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSession, setActiveSession] = useState(null);
@@ -37,6 +38,7 @@ export function useWorkoutLog() {
       setExercises(bundle.exercises);
       setPrograms(bundle.programs);
       setSchedule(bundle.schedule);
+      setActivity(bundle.dailyActivity);
       setError(null);
 
       const todayLogs = bundle.workoutLogs.filter((l) => l.date === today);
@@ -121,6 +123,33 @@ export function useWorkoutLog() {
     const extras = Object.keys(todayByExercise).filter((n) => !programNames.includes(n));
     return [...programNames, ...extras];
   }, [sessionProgram, todayByExercise]);
+
+  const stepsToday = useMemo(
+    () => activity.find((a) => a.date === today)?.steps ?? 0,
+    [activity, today]
+  );
+
+  /** Last seven days of walking, for the rolling average. */
+  const weekSteps = useMemo(() => {
+    const cutoff = new Date(today + "T00:00:00");
+    cutoff.setDate(cutoff.getDate() - 6);
+    return activity.filter((a) => new Date(a.date + "T00:00:00") >= cutoff);
+  }, [activity, today]);
+
+  /** Optimistic, because a step count is a correction as often as an entry. */
+  const saveSteps = useCallback(async (date, steps) => {
+    const before = activity;
+    setActivity((prev) => {
+      const rest = prev.filter((a) => a.date !== date);
+      return [{ date, steps, walk_minutes: 0, notes: "" }, ...rest];
+    });
+    try {
+      await activityApi.set({ date, steps });
+    } catch (err) {
+      setActivity(before);
+      setError(err.message);
+    }
+  }, [activity]);
 
   /** Every set logged today for the session on screen, flattened. */
   const todaySessionSets = useMemo(
@@ -397,6 +426,9 @@ export function useWorkoutLog() {
     priorSessionSets,
     todayPrCount,
     sessions,
+    stepsToday,
+    weekSteps,
+    saveSteps,
     streak,
     weekStrip,
     exercises,

@@ -43,6 +43,14 @@ psql "$DATABASE_URL" -f db/schema.sql
 Verifikasi: 5 tabel ada, `programs.target_reps` bertipe `text`,
 `workout_logs.client_id` punya unique constraint.
 
+### 1b. Muat program baru
+
+```bash
+psql "$DATABASE_URL" -f db/seed-program.sql
+```
+
+Full Body A/B/C + Cardio + HIIT, plus jadwal mingguannya. Aman diulang.
+
 ### 2. Migrasi data dari Sheet
 
 Butuh URL Apps Script `/exec` yang masih aktif (ada di `APPS_SCRIPT_URL` di

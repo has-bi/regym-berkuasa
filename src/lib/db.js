@@ -97,7 +97,8 @@ export async function fetchBundle() {
         'programs',    (select coalesce(json_agg(p order by p.session, p.sort_order), '[]'::json) from programs p),
         'schedule',    (select coalesce(json_agg(s order by s.day_of_week), '[]'::json) from schedule s),
         'workoutLogs', (select coalesce(json_agg(w order by w.date, w.set_number), '[]'::json) from workout_logs w),
-        'bodyMetrics', (select coalesce(json_agg(b order by b.date desc), '[]'::json) from body_metrics b)
+        'bodyMetrics', (select coalesce(json_agg(b order by b.date desc), '[]'::json) from body_metrics b),
+        'dailyActivity', (select coalesce(json_agg(d order by d.date desc), '[]'::json) from daily_activity d)
       ) as bundle`;
     return rows[0].bundle;
   } catch (err) {
@@ -174,6 +175,31 @@ export async function deleteBodyMetric(id) {
   try {
     await sql`delete from body_metrics where id = ${id}`;
     return { ok: true };
+  } catch (err) {
+    throw wrap(err);
+  }
+}
+
+/**
+ * Records a day's walking.
+ *
+ * Keyed on the date and upserted, because a step counter reports a running
+ * total: entering 8,000 after already entering 3,000 means the day reached
+ * 8,000, not 11,000.
+ */
+export async function setDailyActivity(p) {
+  const sql = client();
+  try {
+    const rows = await sql`
+      insert into daily_activity (date, steps, walk_minutes, notes)
+      values (${p.date}, ${p.steps}, ${p.walk_minutes ?? 0}, ${p.notes ?? ""})
+      on conflict (date) do update
+        set steps        = excluded.steps,
+            walk_minutes = excluded.walk_minutes,
+            notes        = excluded.notes,
+            updated_at   = now()
+      returning date, steps, walk_minutes`;
+    return rows[0];
   } catch (err) {
     throw wrap(err);
   }

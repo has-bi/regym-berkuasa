@@ -24,6 +24,20 @@ That matters if the first run dies halfway.
 Rows whose date is unusable are skipped and counted rather than guessed at.
 `--dry-run` tells you how many there are before you commit to anything.
 
+## Loading the program
+
+`db/seed-program.sql` holds the current training block: three full-body days,
+two to three cardio slots with one of them HIIT, and a rest day.
+
+```bash
+psql "$DATABASE_URL" -f db/seed-program.sql
+```
+
+It replaces `programs` wholesale and upserts `schedule`, so it is safe to
+re-run when the block changes. `workout_logs` is never touched — sessions are
+referenced by name, so history under the old Upper/Lower names stays readable
+even though those sessions no longer appear in the Program tab.
+
 ## Local development
 
 `DATABASE_URL` can point at any Postgres. The app picks its driver from the
