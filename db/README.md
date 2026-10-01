@@ -16,13 +16,17 @@ APPS_SCRIPT_URL=<your /exec url> DATABASE_URL=<neon url> \
 APPS_SCRIPT_URL=<your /exec url> DATABASE_URL=<neon url> \
   node scripts/migrate-sheets-to-pg.mjs
 
-# 4. Load the Push / Pull / Legs program and the English exercise catalogue
-psql "$DATABASE_URL" -f db/program-ppl.sql
+# 4. Load the program, the weekly schedule and the English exercise catalogue
+psql "$DATABASE_URL" -f db/seed-program.sql
 ```
 
-Once `program-ppl.sql` has run, do not run the Sheets migration again. The
-sheet still names days in Indonesian (`Senin`, …), so a second run would add
-those as extra schedule rows beside the English ones.
+The seed goes last, after the migration. The sheet still holds the old
+Upper/Lower program and Indonesian day names (`Senin`, …); the seed resets
+`programs` and `schedule` and renames exercises, so running it after the
+migration is what leaves only the current program behind. For the same
+reason, once the seed has run, do not run the Sheets migration for real
+again — it would add the sheet's rows back beside the current ones.
+`--dry-run` stays harmless at any point.
 
 Run admin SQL over the unpooled URL (host without `-pooler`). Neon's pooler
 runs in transaction mode, so a session-level `SET` from a tool such as
@@ -35,6 +39,19 @@ That matters if the first run dies halfway.
 
 Rows whose date is unusable are skipped and counted rather than guessed at.
 `--dry-run` tells you how many there are before you commit to anything.
+
+## The program
+
+`db/seed-program.sql` holds the current training block: three full-body days,
+two cardio slots, one HIIT slot and a rest day, aimed at waist and visceral
+fat. It replaces `programs` and `schedule` wholesale, so it is safe to re-run
+when the block changes. `workout_logs` keeps its own session names, so
+history under earlier programs (Upper/Lower, Push/Pull/Legs) stays readable
+even though those sessions no longer appear in the Program tab.
+
+Daily walking lives in `daily_activity`, one row per date, not in
+`workout_logs`: a walk logged as a session would turn every day into a
+training day and break the streak the first time a walk was missed.
 
 ## Local development
 
@@ -66,7 +83,7 @@ load, and treating 0 as "unset" is what made those sets impossible to log.
 
 The Sheet was the authoring surface and no longer is. Until the app grows
 editing screens, `programs`, `schedule` and `exercises` are changed with SQL —
-the Neon console has a query editor. `db/program-ppl.sql` is the current
+the Neon console has a query editor. `db/seed-program.sql` is the current
 program in full; editing it and re-running it is the simplest way to make a
 larger change, since it resets both tables to exactly what the file says.
 

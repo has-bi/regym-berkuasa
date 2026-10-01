@@ -73,6 +73,18 @@ export function fetchBundle() {
   return request("/api/data/bundle");
 }
 
+/** Daily step target. The goal here is waist, and NEAT moves that needle. */
+export const STEP_GOAL = 8000;
+
+function deserializeActivity(r) {
+  return {
+    ...r,
+    steps: Number(r.steps) || 0,
+    walk_minutes: Number(r.walk_minutes) || 0,
+    date: String(r.date).slice(0, 10),
+  };
+}
+
 export function deserializeBundle(b) {
   return {
     exercises: (b.exercises || []).map(row),
@@ -80,6 +92,7 @@ export function deserializeBundle(b) {
     schedule: (b.schedule || []).map(row),
     workoutLogs: (b.workoutLogs || []).map(deserializeWorkoutLog),
     bodyMetrics: (b.bodyMetrics || []).map(deserializeBodyMetric),
+    dailyActivity: (b.dailyActivity || []).map(deserializeActivity),
   };
 }
 
@@ -92,4 +105,8 @@ export const workoutApi = {
 export const bodyApi = {
   add: (payload) => request("/api/data/body", { action: "add", payload }),
   delete: (id) => request("/api/data/body", { action: "delete", id }),
+};
+
+export const activityApi = {
+  set: (payload) => request("/api/data/activity", { action: "set", payload }),
 };

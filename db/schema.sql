@@ -84,3 +84,23 @@ create table if not exists body_metrics (
 );
 
 create index if not exists body_metrics_date_idx on body_metrics (date desc);
+
+-- Daily walking (NEAT). Deliberately separate from workout_logs.
+--
+-- Walking is a background habit, not a session. Logging it as a session would
+-- make every day a training day, which erases rest days and makes the streak
+-- break the first time a walk is missed. Keeping it here means the streak
+-- never sees it.
+--
+-- One row per day: `date` is the natural key, and a second entry for the same
+-- day replaces the count rather than adding to it, because a step counter
+-- already reports a running total.
+create table if not exists daily_activity (
+  date         date primary key,
+  steps        integer not null default 0,
+  walk_minutes integer not null default 0,
+  notes        text not null default '',
+  updated_at   timestamptz not null default now()
+);
+
+create index if not exists daily_activity_date_idx on daily_activity (date desc);

@@ -6,6 +6,7 @@ import SetInputModal from "./SetInputModal";
 import ExercisePicker from "./ExercisePicker";
 import RestTimerBar from "./RestTimerBar";
 import StreakCard from "./StreakCard";
+import WalkCard from "./WalkCard";
 import TutorialSheet from "./TutorialSheet";
 import SessionSummarySheet from "./SessionSummarySheet";
 import {
@@ -238,6 +239,7 @@ export default function WorkoutLogView() {
     loading, error, today, activeSession, setActiveSession, suggestedSession,
     todayByExercise, todayExerciseNames, sessionProgram, sessionProgress,
     sessions, streak, weekStrip,
+    stepsToday, weekSteps, saveSteps,
     todaySessionSets, priorSessionSets, todayPrCount,
     exercises, recentSessions,
     getLastWeight, getLastReps, getLastPerformance, getPersonalBest,
@@ -304,6 +306,9 @@ export default function WorkoutLogView() {
 
       {/* Streak + this week, driven by the schedule */}
       <StreakCard streak={streak} weekStrip={weekStrip} />
+
+      {/* Walking sits outside the streak on purpose — see WalkCard */}
+      <WalkCard today={today} steps={stepsToday} weekSteps={weekSteps} onSave={saveSteps} />
 
       {/* Session selector — scrolls rather than wrapping, keeping the header a fixed height */}
       <div>

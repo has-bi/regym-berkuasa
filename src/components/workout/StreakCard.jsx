@@ -36,7 +36,7 @@ export default function StreakCard({ streak, weekStrip }) {
   return (
     <div className="card p-4">
       <div className="flex items-start justify-between gap-4 mb-4">
-        <div className="min-w-0">
+        <div className="shrink-0">
           <p className="text-xs text-ink-muted mb-1">Streak</p>
           <p className="text-3xl font-semibold text-ink tabular leading-none flex items-baseline gap-1.5">
             {current}
@@ -50,7 +50,7 @@ export default function StreakCard({ streak, weekStrip }) {
           </p>
         </div>
 
-        <div className="text-right shrink-0 min-w-0">
+        <div className="text-right min-w-0 flex-1">
           <p className="text-xs text-ink-muted mb-1">Today</p>
           <p
             className={`text-sm font-semibold truncate ${
@@ -60,7 +60,11 @@ export default function StreakCard({ streak, weekStrip }) {
             {headline}
           </p>
           {todayPlan?.notes && (
-            <p className="text-xs text-ink-faint mt-1 truncate">{todayPlan.notes}</p>
+            // Two lines, then clipped: schedule notes are free text and can be
+            // any length, and the streak number must stay readable regardless.
+            <p className="text-xs text-ink-faint mt-1 line-clamp-2 leading-snug">
+              {todayPlan.notes}
+            </p>
           )}
         </div>
       </div>

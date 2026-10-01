@@ -32,13 +32,16 @@ Sudah diverifikasi lawan Postgres lokal: schema apply, migrasi jalan + aman
 di-rerun, 4 layar render tanpa error, 1 request per layar, dan add / retry /
 edit / delete semuanya benar.
 
-## Status per 28 Sep 2026
+## Status per 1 Okt 2026
 
 - **Langkah 1 & 2 sudah selesai.** Schema sudah di Neon, data Sheet sudah
   dimigrasi dan jumlah barisnya cocok (112 / 71 / 44 / 7 / 7).
-- **Program diganti ke Push / Pull / Legs** lewat `db/program-ppl.sql`:
-  Senin Push · Selasa Pull · Rabu Legs · Kamis rest · Jumat Upper ·
-  Sabtu Conditioning · Minggu rest. Katalog exercise sekarang bahasa Inggris.
+- **Program sekarang Full Body** lewat `db/seed-program.sql`:
+  Senin Full Body A · Selasa Cardio · Rabu Full Body B · Kamis HIIT ·
+  Jumat Full Body C · Sabtu Cardio · Minggu rest. Push/Pull/Legs sempat
+  dipakai 28 Sep – 1 Okt; riwayatnya tetap ada di log.
+- **Jalan kaki harian** dicatat di tabel `daily_activity` (target 8.000
+  langkah), terpisah dari sesi supaya nggak ngaruh ke streak.
 - **Semua copy di app sudah bahasa Inggris**, termasuk nama hari di
   `schedule` (`Monday` … `Sunday`).
 - **Jangan jalankan migrasi Sheet lagi** — sheet-nya masih pakai nama hari
@@ -89,6 +92,16 @@ union all select 'schedule', count(*) from schedule;
 Patokan dari sheet per 28 Sep 2026: WorkoutLogs 112, Programs 71,
 Exercises 44, BodyMetrics 7, Schedule 7.
 
+### 2b. Muat program
+
+```bash
+psql "$DATABASE_URL" -f db/seed-program.sql
+```
+
+Full Body A/B/C + Cardio + HIIT, jadwal mingguan, dan katalog exercise
+bahasa Inggris. Harus **setelah** migrasi: seed-nya me-reset `programs` dan
+`schedule`, jadi sisa program Upper/Lower dari sheet ikut bersih. Aman diulang.
+
 ### 3. Env vars di Vercel
 
 `DATABASE_URL` sudah ada dari integrasi. **Hapus `APPS_SCRIPT_URL`** setelah
@@ -97,10 +110,11 @@ migrasi diverifikasi. `AUTH_PIN_HASH` dan `SESSION_SECRET` biarkan.
 ### 4. Deploy & cek
 
 Merge branch-nya, tunggu Vercel deploy, lalu buka appnya. Yang harus benar:
-- 4 layar (Lift / Body / Program / Report) tampil tanpa kartu error
+- 4 layar (Lift / Body / Program / Report) tampil tanpa kartu error,
+  dan kartu "Steps today" muncul di layar Lift
 - Data lama muncul — streak dan riwayat sesuai
 - Catat 1 set baru, refresh, set-nya masih ada
-- Tab Program menampilkan Push, Pull, Legs, Upper, Conditioning
+- Tab Program menampilkan Full Body A, B, C, Cardio, HIIT
 
 ### 5. Rotate kredensial Neon
 

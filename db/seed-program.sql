@@ -1,30 +1,42 @@
--- Latihan — Push / Pull / Legs program, in English
+-- Latihan — training program: 3x full body + cardio + HIIT, plus daily walking
 --
 -- Run after db/schema.sql:
---   psql "$DATABASE_URL" -f db/program-ppl.sql
+--   psql "$DATABASE_URL" -f db/seed-program.sql
 --
--- Replaces the whole program and weekly schedule, and rewrites the exercise
--- catalogue in English. Workout history is kept; only the two exercises whose
--- names were Indonesian are renamed in it, so their records stay attached.
+-- Goal: waist circumference and visceral fat. That shapes three choices here.
+--
+-- Full body three times a week, not a split. At three sessions the squat,
+-- hinge, push and pull patterns each get trained three times instead of once,
+-- which is what drives progress at entry-level loads.
+--
+-- Compound lifts carry the session. Nothing targets the waist directly —
+-- spot reduction is not a thing — so the abdominal work here is trunk
+-- stability, and the fat loss comes from the whole week's energy balance.
+--
+-- Cardio is zone 2 by default, with one HIIT slot. Zone 2 is easy to recover
+-- from alongside three lifting days; making every cardio session hard would
+-- eat into the strength work.
+--
+-- Target weights start from the loads already in the logs, rounded to
+-- something beatable. They are a starting point, not a ceiling.
 --
 -- Safe to re-run, but it resets programs and schedule to exactly what is
--- written here — edits made in the database since will be overwritten.
+-- written here. workout_logs keeps its own session names, so history under
+-- earlier programs (Upper/Lower, Push/Pull/Legs) stays readable.
 --
--- Week: Push · Pull · Legs · rest · Upper · Conditioning · rest
+-- Week: Full Body A · Cardio · Full Body B · HIIT · Full Body C · Cardio · rest
 
 begin;
 
--- Renames first, so history and the catalogue agree on the new names.
+-- Renames first, so history and the catalogue agree on the English names.
+-- No-ops once applied.
 update exercises    set name = 'Jumping Jacks / Brisk Walk'            where name = 'Jumping Jack / Jalan Cepat';
 update exercises    set name = 'Easy Walk / Light Cycling (Cool Down)' where name = 'Jalan Santai / Light Cycling (Cool Down)';
 update workout_logs set exercise_name = 'Jumping Jacks / Brisk Walk'            where exercise_name = 'Jumping Jack / Jalan Cepat';
 update workout_logs set exercise_name = 'Easy Walk / Light Cycling (Cool Down)' where exercise_name = 'Jalan Santai / Light Cycling (Cool Down)';
-
--- Conditioning is the same session under its English name; Upper A/B and
--- Lower A/B are left as they were, because that is what was actually trained.
 update workout_logs set session = 'Conditioning' where session = 'Kondisioning';
 
--- Exercise catalogue. video_url is left untouched on existing rows.
+-- Exercise catalogue, in English. video_url is left untouched on existing rows.
 insert into exercises (name, muscle_group, equipment, cues) values
   -- Chest
   ('Bench Press',         'Chest', 'Barbell',  'Pull your shoulder blades back and down. Lower the bar to your lower chest, elbows about 45° from your body. Drive your feet into the floor and keep your hips on the bench.'),
@@ -59,6 +71,14 @@ insert into exercises (name, muscle_group, equipment, cues) values
   ('Treadmill',           'Cardio', 'Machine', 'Zone 2: you should still be able to hold a conversation while walking or running. Stand tall and don''t hold the rails.'),
   ('Stationary Bike',     'Cardio', 'Machine', 'Seat at hip height. Cadence 80–90 rpm, moderate resistance.'),
   ('Rowing Machine',      'Cardio', 'Machine', 'Order: push with the legs → swing the body → pull with the arms. Reverse the order on the way back.'),
+  -- Core
+  ('Plank',        'Core', 'Bodyweight', 'Elbows under shoulders, body in one line from head to heels. Brace your abs and glutes and don''t let your hips sag. Keep breathing.'),
+  ('Dead Bug',     'Core', 'Bodyweight', 'Keep your lower back pressed into the floor the whole time — that is the point. Lower opposite arm and leg slowly and stop before your back arches.'),
+  ('Pallof Press', 'Core', 'Cable',      'Stand side-on to the cable, press the handle straight out and hold. Resist the pull to rotate; don''t let your torso turn with it. This is anti-rotation work.'),
+  -- Cardio, continued
+  ('HIIT Interval', 'Cardio', 'Machine', 'After the warm-up: 30 seconds hard, 90 seconds easy, repeat for 8-10 rounds. Treadmill, bike or rower all work. The hard part has to be genuinely hard.'),
+  -- Daily walking, outside sessions
+  ('Walking',       'NEAT',   'Bodyweight', 'Easy walking outside your training sessions. What counts is the daily total, not the intensity.'),
   -- Warm up
   ('Jumping Jacks / Brisk Walk', 'Warm Up', 'Bodyweight', '2-3 min. Raise your heart rate and body temperature before mobility work.'),
   ('Arm Circles',                'Warm Up', 'Bodyweight', '20x each direction (small to large). Loosens up the shoulders before an upper body day.'),
@@ -83,96 +103,71 @@ on conflict (name) do update
       equipment    = excluded.equipment,
       cues         = excluded.cues;
 
--- Program. Warm-ups sort below zero, main lifts from 1, cool-downs from 90.
-delete from programs;
-
-insert into programs (session, exercise_name, target_sets, target_reps, rest_seconds, target_weight, sort_order) values
-  -- Push: chest, shoulders, triceps
-  ('Push', 'Jumping Jacks / Brisk Walk', 1, '2-3 min',              0,   0, -5),
-  ('Push', 'Arm Circles',                1, '20x each direction',   0,   0, -4),
-  ('Push', 'Band Pull-Apart',            1, '15x',                  0,   0, -3),
-  ('Push', 'Scapular Push-Up',           1, '10x',                  0,   0, -2),
-  ('Push', 'Cat-Cow',                    1, '10x',                  0,   0, -1),
-  ('Push', 'Bench Press',                4, '6-10',               120,  20,  1),
-  ('Push', 'Overhead Press',             3, '8-10',                90,  20,  2),
-  ('Push', 'Incline DB Press',           3, '10-12',               90,  10,  3),
-  ('Push', 'Cable Fly',                  3, '12-15',               60,  15,  4),
-  ('Push', 'Lateral Raise',              3, '12-15',               60,   8,  5),
-  ('Push', 'Tricep Pushdown',            3, '10-12',               60,  20,  6),
-  ('Push', 'Chest Stretch',              1, '30 sec per side',      0,   0, 90),
-  ('Push', 'Child''s Pose / Cat-Cow (Cool Down)',   1, '1 min',     0,   0, 91),
-  ('Push', 'Easy Walk / Light Cycling (Cool Down)', 1, '2-3 min',   0,   0, 92),
-
-  -- Pull: back, rear delts, biceps
-  ('Pull', 'Jumping Jacks / Brisk Walk', 1, '2-3 min',              0,   0, -5),
-  ('Pull', 'Arm Circles',                1, '20x each direction',   0,   0, -4),
-  ('Pull', 'Band Pull-Apart',            1, '15x',                  0,   0, -3),
-  ('Pull', 'Glute Bridge',               1, '15x',                  0,   0, -2),
-  ('Pull', 'Cat-Cow',                    1, '10x',                  0,   0, -1),
-  ('Pull', 'Deadlift',                   3, '5-8',                150,  20,  1),
-  ('Pull', 'Lat Pulldown',               4, '8-12',                90,  40,  2),
-  ('Pull', 'Seated Cable Row',           3, '10-12',               90,  35,  3),
-  ('Pull', 'Face Pull',                  3, '15',                  60,  10,  4),
-  ('Pull', 'Bicep Curl',                 3, '10-12',               60,  12,  5),
-  ('Pull', 'Hammer Curl',                3, '10-12',               60,  10,  6),
-  ('Pull', 'Lat Stretch',                1, '30 sec per side',      0,   0, 90),
-  ('Pull', 'Hamstring Stretch',          1, '30 sec per side',      0,   0, 91),
-  ('Pull', 'Easy Walk / Light Cycling (Cool Down)', 1, '2-3 min',   0,   0, 92),
-
-  -- Legs: quads, hamstrings, calves
-  ('Legs', 'Jumping Jacks / Brisk Walk', 1, '3 min',                0,   0, -6),
-  ('Legs', 'Bodyweight Squat (Warm Up)', 1, '15x',                  0,   0, -5),
-  ('Legs', 'Leg Swings',                 1, '10x per leg each direction', 0, 0, -4),
-  ('Legs', 'Hip Circles',                1, '10x each direction',   0,   0, -3),
-  ('Legs', 'Glute Bridge',               1, '15x',                  0,   0, -2),
-  ('Legs', 'World''s Greatest Stretch',  1, '5x per side',          0,   0, -1),
-  ('Legs', 'Squat',                      4, '6-10',               120,  20,  1),
-  ('Legs', 'Romanian Deadlift',          3, '8-12',                90,  20,  2),
-  ('Legs', 'Leg Press',                  3, '10-15',               90,  80,  3),
-  ('Legs', 'Leg Curl',                   3, '10-12',               60,  30,  4),
-  ('Legs', 'Leg Extension',              3, '12-15',               60,  30,  5),
-  ('Legs', 'Calf Raise',                 4, '15-20',               45,  40,  6),
-  ('Legs', 'Hip Flexor Stretch',         1, '30 sec per side',      0,   0, 90),
-  ('Legs', 'Hamstring Stretch',          1, '30 sec per side',      0,   0, 91),
-  ('Legs', 'Quad Stretch',               1, '30 sec per side',      0,   0, 92),
-  ('Legs', 'Child''s Pose / Cat-Cow (Cool Down)',   1, '1 min',     0,   0, 93),
-  ('Legs', 'Easy Walk / Light Cycling (Cool Down)', 1, '2-3 min',   0,   0, 94),
-
-  -- Upper: push and pull again with different angles, for twice-weekly upper frequency
-  ('Upper', 'Jumping Jacks / Brisk Walk', 1, '2-3 min',             0,   0, -5),
-  ('Upper', 'Arm Circles',                1, '20x each direction',  0,   0, -4),
-  ('Upper', 'Band Pull-Apart',            1, '15x',                 0,   0, -3),
-  ('Upper', 'Scapular Push-Up',           1, '10x',                 0,   0, -2),
-  ('Upper', 'Cat-Cow',                    1, '10x',                 0,   0, -1),
-  ('Upper', 'Incline Bench Press',        4, '8-10',               90,  20,  1),
-  ('Upper', 'Pull Up',                    3, 'AMRAP',              90,   0,  2),
-  ('Upper', 'Bent Over Row',              3, '8-10',               90,  20,  3),
-  ('Upper', 'Lateral Raise',              3, '15',                 60,   8,  4),
-  ('Upper', 'Skull Crusher',              3, '10-12',              60,  12,  5),
-  ('Upper', 'Hammer Curl',                3, '12',                 60,  10,  6),
-  ('Upper', 'Chest Stretch',              1, '30 sec per side',     0,   0, 90),
-  ('Upper', 'Lat Stretch',                1, '30 sec per side',     0,   0, 91),
-  ('Upper', 'Easy Walk / Light Cycling (Cool Down)', 1, '2-3 min',  0,   0, 92),
-
-  -- Conditioning
-  ('Conditioning', 'Jumping Jacks / Brisk Walk', 1, '3 min',        0,   0, -2),
-  ('Conditioning', 'Leg Swings',          1, '2 min (dynamic: leg swings, arm circles, torso twist)', 0, 0, -1),
-  ('Conditioning', 'Treadmill',           1, '30 min',              0,   0,  1),
-  ('Conditioning', 'Stationary Bike',     1, '20 min',              0,   0,  2),
-  ('Conditioning', 'Easy Walk / Light Cycling (Cool Down)', 1, '2-3 min', 0, 0, 90),
-  ('Conditioning', 'Quad Stretch',        1, '30 sec per side',     0,   0, 91),
-  ('Conditioning', 'Hamstring Stretch',   1, '30 sec per side',     0,   0, 92);
-
 -- Weekly schedule. Day names must match DAY_NAMES in src/lib/streak.js.
 delete from schedule;
 
 insert into schedule (day_of_week, session, notes) values
-  ('Monday',    'Push',         ''),
-  ('Tuesday',   'Pull',         ''),
-  ('Wednesday', 'Legs',         ''),
-  ('Thursday',  'REST',         'Recovery — an easy walk is fine'),
-  ('Friday',    'Upper',        ''),
-  ('Saturday',  'Conditioning', ''),
-  ('Sunday',    'REST',         'Full rest');
+  ('Monday',    'Full Body A', 'Squat focus'),
+  ('Tuesday',   'Cardio',      'Zone 2, 30-45 min'),
+  ('Wednesday', 'Full Body B', 'Deadlift focus'),
+  ('Thursday',  'HIIT',        '15-20 min, hard'),
+  ('Friday',    'Full Body C', 'Machines & glutes'),
+  ('Saturday',  'Cardio',      'Optional, keep it easy'),
+  ('Sunday',    'REST',        'A proper day off');
+
+-- Program. Warm-ups sort below zero, main work from 1, cool-downs from 90.
+delete from programs;
+
+insert into programs
+  (session, exercise_name, target_sets, target_reps, rest_seconds, target_weight, sort_order) values
+
+  -- Full Body A — squat pattern leads
+  ('Full Body A', 'Jumping Jacks / Brisk Walk',            1, '3 min',            0,   0,   -4),
+  ('Full Body A', 'Leg Swings',                            1, '10x per leg',      0,   0,   -3),
+  ('Full Body A', 'Arm Circles',                           1, '20x each direction', 0, 0,   -2),
+  ('Full Body A', 'Bodyweight Squat (Warm Up)',            1, '15x',              0,   0,   -1),
+  ('Full Body A', 'Squat',                                 3, '8-12',           120,  10,    1),
+  ('Full Body A', 'Bench Press',                           3, '8-12',            90,  12.5,  2),
+  ('Full Body A', 'Seated Cable Row',                      3, '10-12',           90,  32,    3),
+  ('Full Body A', 'Romanian Deadlift',                     2, '10-12',           90,  20,    4),
+  ('Full Body A', 'Plank',                                 3, '30-45 sec',       60,   0,    5),
+  ('Full Body A', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   90),
+  ('Full Body A', 'Quad Stretch',                          1, '30 sec per side',  0,   0,   91),
+
+  -- Full Body B — hinge pattern leads
+  ('Full Body B', 'Jumping Jacks / Brisk Walk',            1, '3 min',            0,   0,   -4),
+  ('Full Body B', 'Glute Bridge',                          1, '15x',              0,   0,   -3),
+  ('Full Body B', 'Band Pull-Apart',                       1, '15x',              0,   0,   -2),
+  ('Full Body B', 'Cat-Cow',                               1, '10x',              0,   0,   -1),
+  ('Full Body B', 'Deadlift',                              3, '6-8',            150,  30,    1),
+  ('Full Body B', 'Overhead Press',                        3, '8-10',            90,  10,    2),
+  ('Full Body B', 'Lat Pulldown',                          3, '10-12',           90,  25,    3),
+  ('Full Body B', 'Walking Lunge',                         2, '12 per leg',      90,  14,    4),
+  ('Full Body B', 'Dead Bug',                              3, '10 per side',     60,   0,    5),
+  ('Full Body B', 'Hip Flexor Stretch',                    1, '30 sec per side',  0,   0,   90),
+  ('Full Body B', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   91),
+
+  -- Full Body C — machines and glutes, easiest to push load on
+  ('Full Body C', 'Jumping Jacks / Brisk Walk',            1, '3 min',            0,   0,   -4),
+  ('Full Body C', 'Hip Circles',                           1, '10x each direction', 0, 0,   -3),
+  ('Full Body C', 'Scapular Push-Up',                      1, '10x',              0,   0,   -2),
+  ('Full Body C', 'Arm Circles',                           1, '20x each direction', 0, 0,   -1),
+  ('Full Body C', 'Leg Press',                             3, '10-15',           90,  45,    1),
+  ('Full Body C', 'Incline DB Press',                      3, '10-12',           90,  10,    2),
+  ('Full Body C', 'Bent Over Row',                         3, '8-12',            90,  20,    3),
+  ('Full Body C', 'Hip Thrust',                            3, '10-15',           90,  30,    4),
+  ('Full Body C', 'Pallof Press',                          3, '12 per side',     60,  10,    5),
+  ('Full Body C', 'Quad Stretch',                          1, '30 sec per side',  0,   0,   90),
+  ('Full Body C', 'Child''s Pose / Cat-Cow (Cool Down)',   1, '1 min',            0,   0,   91),
+
+  -- Cardio — steady, zone 2
+  ('Cardio', 'Jumping Jacks / Brisk Walk',                 1, '3 min',            0,   0,   -1),
+  ('Cardio', 'Treadmill',                                  1, '30-45 min',        0,   0,    1),
+  ('Cardio', 'Easy Walk / Light Cycling (Cool Down)',      1, '5 min',            0,   0,   90),
+
+  -- HIIT — the one hard cardio slot
+  ('HIIT',   'Jumping Jacks / Brisk Walk',                 1, '5 min',            0,   0,   -1),
+  ('HIIT',   'HIIT Interval',                              1, '15-20 min',        0,   0,    1),
+  ('HIIT',   'Easy Walk / Light Cycling (Cool Down)',      1, '5 min',            0,   0,   90);
 
 commit;
