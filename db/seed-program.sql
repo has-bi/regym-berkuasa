@@ -103,7 +103,7 @@ on conflict (name) do update
       equipment    = excluded.equipment,
       cues         = excluded.cues;
 
--- Weekly schedule. Day names must match DAY_NAMES in src/lib/streak.js.
+-- Weekly schedule. Day names must match DAY_NAMES in src/lib/schedule.js.
 delete from schedule;
 
 insert into schedule (day_of_week, session, notes) values

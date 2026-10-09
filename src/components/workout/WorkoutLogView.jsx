@@ -5,7 +5,7 @@ import { useRestTimer } from "@/hooks/useRestTimer";
 import SetInputModal from "./SetInputModal";
 import ExercisePicker from "./ExercisePicker";
 import RestTimerBar from "./RestTimerBar";
-import StreakCard from "./StreakCard";
+import MonthCard from "./MonthCard";
 import WalkCard from "./WalkCard";
 import Checklist from "./Checklist";
 import TutorialSheet from "./TutorialSheet";
@@ -235,7 +235,7 @@ export default function WorkoutLogView() {
   const {
     loading, error, today, activeSession, setActiveSession, suggestedSession,
     todayByExercise, todayExerciseNames, sessionProgram, sessionProgress,
-    sessions, streak, weekPlan, warmups, cooldowns,
+    sessions, todayPlan, trainedToday, calendar, warmups, cooldowns,
     stepsToday, weekSteps, saveSteps,
     todaySessionSets, priorSessionSets, todayPrCount,
     exercises, recentSessions,
@@ -301,10 +301,10 @@ export default function WorkoutLogView() {
         </div>
       )}
 
-      {/* Streak + this week, driven by the schedule */}
-      <StreakCard streak={streak} weekPlan={weekPlan} />
+      {/* Today's plan + this month: gym days, rest days, misses */}
+      <MonthCard calendar={calendar} todayPlan={todayPlan} trainedToday={trainedToday} />
 
-      {/* Walking sits outside the streak on purpose — see WalkCard */}
+      {/* Walking is tracked apart from sessions — see WalkCard */}
       <WalkCard today={today} steps={stepsToday} weekSteps={weekSteps} onSave={saveSteps} />
 
       {/* Session selector — scrolls rather than wrapping, keeping the header a fixed height */}
@@ -322,10 +322,9 @@ export default function WorkoutLogView() {
           )}
         </div>
 
-        {streak.todayPlan?.isRest && (
+        {todayPlan.isRest && (
           <p className="text-xs text-ink-muted mb-2">
-            Today&rsquo;s a rest day — but if you feel like lifting, just pick one. Your streak
-            is safe either way.
+            Today&rsquo;s a rest day — but if you feel like lifting, just pick one.
           </p>
         )}
         <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

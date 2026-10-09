@@ -6,8 +6,8 @@ import { FiCheck, FiEdit2 } from "react-icons/fi";
 /**
  * Daily walking, kept visually apart from the session work.
  *
- * It sits below the streak on purpose: missing a walk does not break the
- * streak, and showing it inside that card would imply it does.
+ * Stored apart from workout_logs on purpose: a walk is not a gym session, so
+ * it never turns a rest day into a gym day on the calendar.
  */
 export default function WalkCard({ today, steps, weekSteps, onSave }) {
   const [editing, setEditing] = useState(false);

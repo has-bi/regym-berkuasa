@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { workoutApi, activityApi, fetchBundle, deserializeBundle } from "@/actions/data";
-import { buildScheduleMap, computeStreak, DAY_NAMES, DAY_SHORT } from "@/lib/streak";
+import { buildScheduleMap, getPlanFor, monthCalendar, DAY_NAMES } from "@/lib/schedule";
 
 /** Fallback only — the real list comes from whatever sessions the data defines. */
 export const SESSIONS = ["Full Body A", "Full Body B", "Full Body C", "Cardio", "HIIT"];
@@ -69,23 +69,21 @@ export function useWorkoutLog() {
 
   const scheduleMap = useMemo(() => buildScheduleMap(schedule), [schedule]);
 
-  const streak = useMemo(
-    () => computeStreak(logs, scheduleMap, today),
+  const todayPlan = useMemo(() => getPlanFor(today, scheduleMap), [today, scheduleMap]);
+  const trainedToday = todayLogs.length > 0;
+
+  /** This month, day by day: gym, rest, missed or still to come. */
+  const calendar = useMemo(
+    () => monthCalendar(logs, scheduleMap, today),
     [logs, scheduleMap, today]
   );
 
-  /** The week at a glance, Monday first: one entry per day. */
-  const weekPlan = useMemo(() => {
-    const todayIdx = new Date(today + "T00:00:00").getDay();
-    return WEEK_ORDER.map((i) => {
-      const entry = scheduleMap[DAY_NAMES[i]];
-      return {
-        day: DAY_SHORT[i],
-        session: entry && !entry.isRest ? entry.session : "",
-        isToday: i === todayIdx,
-      };
-    });
-  }, [scheduleMap, today]);
+  /** Scheduled sessions, Monday first — sets the order of the session picker. */
+  const weekSessions = useMemo(
+    () => WEEK_ORDER.map((i) => scheduleMap[DAY_NAMES[i]])
+      .map((entry) => (entry && !entry.isRest ? entry.session : "")),
+    [scheduleMap]
+  );
 
   /**
    * Session names in the order the week runs, then any the schedule does not
@@ -94,23 +92,23 @@ export function useWorkoutLog() {
   const sessions = useMemo(() => {
     const fromData = [
       ...new Set([
-        ...weekPlan.map((d) => d.session),
+        ...weekSessions,
         ...programs.map((p) => String(p.session || "").trim()),
       ]),
     ].filter((s) => s && s.toUpperCase() !== "REST");
     return fromData.length ? fromData : SESSIONS;
-  }, [weekPlan, programs]);
+  }, [weekSessions, programs]);
 
   /**
    * Today's session comes from the schedule rather than a rotation guess, so
    * the app opens on whatever the plan actually says.
    */
   const suggestedSession = useMemo(() => {
-    if (streak.todayPlan?.session && !streak.todayPlan.isRest) {
-      return streak.todayPlan.session;
+    if (todayPlan.session && !todayPlan.isRest) {
+      return todayPlan.session;
     }
     return sessions[0];
-  }, [streak, sessions]);
+  }, [todayPlan, sessions]);
 
   useEffect(() => {
     if (!loading && !sessionTouched && !activeSession) {
@@ -461,8 +459,9 @@ export function useWorkoutLog() {
     stepsToday,
     weekSteps,
     saveSteps,
-    streak,
-    weekPlan,
+    todayPlan,
+    trainedToday,
+    calendar,
     warmups,
     cooldowns,
     exercises,

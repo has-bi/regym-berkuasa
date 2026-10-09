@@ -8,7 +8,7 @@ export default function manifest() {
   return {
     name: "Latihan — Fitness & Body Tracker",
     short_name: "Latihan",
-    description: "Log workouts, track body metrics, and keep your streak.",
+    description: "Log workouts, track body metrics, and see your month at a glance.",
     start_url: "/log",
     scope: "/",
     display: "standalone",

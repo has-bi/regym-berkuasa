@@ -70,7 +70,7 @@ const TIERS = [
     lines: [
       "Showing up already beat the version of you on the couch.",
       "The worst session still beats the one that never happened.",
-      "Streak saved. That's what matters today.",
+      "You showed up. That's what matters today.",
     ],
   },
 ];

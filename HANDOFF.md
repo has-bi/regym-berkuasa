@@ -41,7 +41,7 @@ edit / delete semuanya benar.
   Jumat Full Body C · Sabtu Cardio · Minggu rest. Push/Pull/Legs sempat
   dipakai 28 Sep – 1 Okt; riwayatnya tetap ada di log.
 - **Jalan kaki harian** dicatat di tabel `daily_activity` (target 8.000
-  langkah), terpisah dari sesi supaya nggak ngaruh ke streak.
+  langkah), terpisah dari sesi supaya jalan kaki nggak kehitung hari gym di kalender.
 - **Semua copy di app sudah bahasa Inggris**, termasuk nama hari di
   `schedule` (`Monday` … `Sunday`).
 - **Jangan jalankan migrasi Sheet lagi** — sheet-nya masih pakai nama hari
@@ -112,7 +112,7 @@ migrasi diverifikasi. `AUTH_PIN_HASH` dan `SESSION_SECRET` biarkan.
 Merge branch-nya, tunggu Vercel deploy, lalu buka appnya. Yang harus benar:
 - 4 layar (Lift / Body / Food / Report) tampil tanpa kartu error,
   dan kartu "Steps today" muncul di layar Lift
-- Data lama muncul — streak dan riwayat sesuai
+- Data lama muncul — kalender bulan ini dan riwayat sesuai
 - Catat 1 set baru, refresh, set-nya masih ada
 - Pilihan sesi di layar Lift: Full Body A, Cardio, Full Body B, HIIT, Full Body C
 

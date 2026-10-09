@@ -42,7 +42,7 @@ create index if not exists programs_session_order_idx
   on programs (session, sort_order);
 
 -- The weekly split. A rest day is an explicit row with session = 'REST', so
--- the streak can tell planned rest from a skipped day.
+-- the calendar can tell planned rest from a missed training day.
 create table if not exists schedule (
   id          uuid primary key default gen_random_uuid(),
   day_of_week text not null unique,
@@ -88,9 +88,8 @@ create index if not exists body_metrics_date_idx on body_metrics (date desc);
 -- Daily walking (NEAT). Deliberately separate from workout_logs.
 --
 -- Walking is a background habit, not a session. Logging it as a session would
--- make every day a training day, which erases rest days and makes the streak
--- break the first time a walk is missed. Keeping it here means the streak
--- never sees it.
+-- make every day a gym day on the calendar and erase the rest days. Keeping it
+-- here means the calendar never sees it.
 --
 -- One row per day: `date` is the natural key, and a second entry for the same
 -- day replaces the count rather than adding to it, because a step counter

@@ -51,7 +51,7 @@ even though those sessions are no longer offered on the Lift screen.
 
 Daily walking lives in `daily_activity`, one row per date, not in
 `workout_logs`: a walk logged as a session would turn every day into a
-training day and break the streak the first time a walk was missed.
+gym day on the Lift screen's calendar.
 
 ## Local development
 
@@ -88,6 +88,6 @@ program in full; editing it and re-running it is the simplest way to make a
 larger change, since it resets both tables to exactly what the file says.
 
 `schedule.day_of_week` must be an English weekday name (`Monday` … `Sunday`),
-matching `DAY_NAMES` in `src/lib/streak.js`. A day with no matching row is
+matching `DAY_NAMES` in `src/lib/schedule.js`. A day with no matching row is
 treated as rest. `workout_logs` and `body_metrics` are
 written by the app and need no manual editing.
