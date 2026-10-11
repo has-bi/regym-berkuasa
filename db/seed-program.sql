@@ -17,8 +17,11 @@
 -- from alongside three lifting days; making every cardio session hard would
 -- eat into the strength work.
 --
--- Target weights start from the loads already in the logs, rounded to
--- something beatable. They are a starting point, not a ceiling.
+-- Target weights are the working weight for the next session, set from the
+-- last logged sets by double progression: every set at the top of the rep
+-- range earns the next increment (+5 kg lower-body barbell, +2.5 kg upper
+-- barbell, +2 kg dumbbell, one step on a cable stack); otherwise the weight
+-- holds. Last set from the logs on 11 Oct 2026.
 --
 -- Safe to re-run, but it resets programs and schedule to exactly what is
 -- written here. workout_logs keeps its own session names, so history under
@@ -127,9 +130,9 @@ insert into programs
   ('Full Body A', 'Arm Circles',                           1, '20x each direction', 0, 0,   -2),
   ('Full Body A', 'Bodyweight Squat (Warm Up)',            1, '15x',              0,   0,   -1),
   ('Full Body A', 'Squat',                                 3, '8-12',           120,  10,    1),
-  ('Full Body A', 'Bench Press',                           3, '8-12',            90,  12.5,  2),
-  ('Full Body A', 'Seated Cable Row',                      3, '10-12',           90,  32,    3),
-  ('Full Body A', 'Romanian Deadlift',                     2, '10-12',           90,  20,    4),
+  ('Full Body A', 'Bench Press',                           3, '8-12',            90,  40,    2),
+  ('Full Body A', 'Seated Cable Row',                      3, '10-12',           90,  30,    3),
+  ('Full Body A', 'Romanian Deadlift',                     2, '10-12',           90,  30,    4),
   ('Full Body A', 'Plank',                                 3, '30-45 sec',       60,   0,    5),
   ('Full Body A', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   90),
   ('Full Body A', 'Quad Stretch',                          1, '30 sec per side',  0,   0,   91),
@@ -139,10 +142,10 @@ insert into programs
   ('Full Body B', 'Glute Bridge',                          1, '15x',              0,   0,   -3),
   ('Full Body B', 'Band Pull-Apart',                       1, '15x',              0,   0,   -2),
   ('Full Body B', 'Cat-Cow',                               1, '10x',              0,   0,   -1),
-  ('Full Body B', 'Deadlift',                              3, '6-8',            150,  30,    1),
-  ('Full Body B', 'Overhead Press',                        3, '8-10',            90,  10,    2),
-  ('Full Body B', 'Lat Pulldown',                          3, '10-12',           90,  25,    3),
-  ('Full Body B', 'Walking Lunge',                         2, '12 per leg',      90,  14,    4),
+  ('Full Body B', 'Deadlift',                              3, '6-8',            150,  45,    1),
+  ('Full Body B', 'Overhead Press',                        3, '8-10',            90,  17.5,  2),
+  ('Full Body B', 'Lat Pulldown',                          3, '10-12',           90,  27,    3),
+  ('Full Body B', 'Walking Lunge',                         2, '12 per leg',      90,  16,    4),
   ('Full Body B', 'Dead Bug',                              3, '10 per side',     60,   0,    5),
   ('Full Body B', 'Hip Flexor Stretch',                    1, '30 sec per side',  0,   0,   90),
   ('Full Body B', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   91),
@@ -153,8 +156,8 @@ insert into programs
   ('Full Body C', 'Scapular Push-Up',                      1, '10x',              0,   0,   -2),
   ('Full Body C', 'Arm Circles',                           1, '20x each direction', 0, 0,   -1),
   ('Full Body C', 'Leg Press',                             3, '10-15',           90,  45,    1),
-  ('Full Body C', 'Incline DB Press',                      3, '10-12',           90,  10,    2),
-  ('Full Body C', 'Bent Over Row',                         3, '8-12',            90,  20,    3),
+  ('Full Body C', 'Incline DB Press',                      3, '10-12',           90,  20,    2),
+  ('Full Body C', 'Bent Over Row',                         3, '8-12',            90,  25,    3),
   ('Full Body C', 'Hip Thrust',                            3, '10-15',           90,  30,    4),
   ('Full Body C', 'Pallof Press',                          3, '12 per side',     60,  10,    5),
   ('Full Body C', 'Quad Stretch',                          1, '30 sec per side',  0,   0,   90),
