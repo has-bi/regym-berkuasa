@@ -157,6 +157,9 @@ function ExerciseCard({
             </div>
             <p className="text-xs text-ink-muted mt-1">
               {targetLabel}
+              {programInfo?.increased && (
+                <span className="text-emerald-700 font-medium"> ↑</span>
+              )}
               {programInfo?.rest_seconds > 0 && (
                 <span className="text-ink-faint"> · {programInfo.rest_seconds}s rest</span>
               )}
@@ -239,7 +242,7 @@ export default function WorkoutLogView() {
     stepsToday, weekSteps, saveSteps,
     todaySessionSets, priorSessionSets, todayPrCount,
     exercises, recentSessions,
-    getLastWeight, getLastReps, getLastPerformance, getPersonalBest,
+    getLastWeight, getLastReps, getLastPerformance, getPersonalBest, getNextTarget,
     logSet, retrySet, updateSet, deleteSet,
   } = useWorkoutLog();
 
@@ -249,6 +252,24 @@ export default function WorkoutLogView() {
   const [showSummary, setShowSummary] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [tutorialFor, setTutorialFor] = useState(null);
+
+  /**
+   * The program row with today's working weight in place of the fixed one, so
+   * the card, the logger and the tutorial all show the progressed target.
+   */
+  const planFor = (name) => {
+    const p = sessionProgram.find((row) => row.exercise_name === name);
+    if (!p) return null;
+    const next = getNextTarget(name);
+    return { ...p, target_weight: next.weight, increased: next.increased };
+  };
+
+  /** First set of the day starts at the target; later sets follow the last one logged. */
+  const prefillWeightFor = (name) => {
+    const today = todayByExercise[name];
+    if (today?.length) return today[today.length - 1].weight;
+    return planFor(name)?.target_weight ?? getLastWeight(name);
+  };
 
   /** Tutorial content lives on the exercises table, matched by name. */
   const exerciseByName = Object.fromEntries(exercises.map((e) => [e.name, e]));
@@ -410,7 +431,7 @@ export default function WorkoutLogView() {
               key={name}
               name={name}
               sets={todayByExercise[name] || []}
-              programInfo={sessionProgram.find((p) => p.exercise_name === name) ?? null}
+              programInfo={planFor(name)}
               lastPerformance={getLastPerformance(name)}
               hasTutorial={hasTutorial(name)}
               onShowTutorial={() => setTutorialFor(name)}
@@ -480,7 +501,7 @@ export default function WorkoutLogView() {
         <SetInputModal
           exerciseName={loggingExercise}
           setNumber={(todayByExercise[loggingExercise]?.length ?? 0) + 1}
-          prefillWeight={getLastWeight(loggingExercise)}
+          prefillWeight={prefillWeightFor(loggingExercise)}
           prefillReps={getLastReps(loggingExercise)}
           lastPerformance={getLastPerformance(loggingExercise)}
           personalBest={getPersonalBest(loggingExercise)}
@@ -533,7 +554,7 @@ export default function WorkoutLogView() {
       {tutorialFor && (
         <TutorialSheet
           exercise={exerciseByName[tutorialFor] ?? { name: tutorialFor }}
-          programInfo={sessionProgram.find((p) => p.exercise_name === tutorialFor) ?? null}
+          programInfo={planFor(tutorialFor)}
           onClose={() => setTutorialFor(null)}
         />
       )}

@@ -1,4 +1,4 @@
--- Latihan — training program: 3x full body + cardio + HIIT, plus daily walking
+-- Latihan — training program: 3x full body + 1 cardio day, plus walking
 --
 -- Run after db/schema.sql:
 --   psql "$DATABASE_URL" -f db/seed-program.sql
@@ -13,21 +13,31 @@
 -- spot reduction is not a thing — so the abdominal work here is trunk
 -- stability, and the fat loss comes from the whole week's energy balance.
 --
--- Cardio is zone 2 by default, with one HIIT slot. Zone 2 is easy to recover
--- from alongside three lifting days; making every cardio session hard would
--- eat into the strength work.
+-- Cardio gets one day of its own, Saturday, with the most time: intervals
+-- then zone 2. Vigorous cardio and HIIT rank highest for visceral fat (Chen et
+-- al., Obesity Reviews 2024, 84 RCTs). Two lifting days end with a 15-minute
+-- zone 2 finisher, and walking covers the rest of the weekly 150 minutes —
+-- as a weekly step average, not a daily quota.
+--
+-- Weekday sessions are mornings with 90 minutes at most, so each lifting day
+-- is sized to about an hour including warm-up, finisher and stretches.
 --
 -- Target weights are the working weight for the next session, set from the
 -- last logged sets by double progression: every set at the top of the rep
 -- range earns the next increment (+5 kg lower-body barbell, +2.5 kg upper
 -- barbell, +2 kg dumbbell, one step on a cable stack); otherwise the weight
--- holds. Last set from the logs on 11 Oct 2026.
+-- holds. Last set from the logs on 11 Oct 2026. The app applies the same rule
+-- after every session (src/lib/progression.js); these are only the starting
+-- point for an exercise with no history.
+--
+-- Squat is logged as plate weight only, without the bar. Hip Thrust is done
+-- with bodyweight and progresses by reps.
 --
 -- Safe to re-run, but it resets programs and schedule to exactly what is
 -- written here. workout_logs keeps its own session names, so history under
 -- earlier programs (Upper/Lower, Push/Pull/Legs) stays readable.
 --
--- Week: Full Body A · Cardio · Full Body B · HIIT · Full Body C · Cardio · rest
+-- Week: Full Body A · rest · Full Body B · rest · Full Body C · Cardio Day · rest
 
 begin;
 
@@ -68,7 +78,7 @@ insert into exercises (name, muscle_group, equipment, cues) values
   ('Walking Lunge',       'Quads',      'Dumbbell', 'Take a long enough stride that your back knee nearly touches the floor. Stay upright.'),
   ('Romanian Deadlift',   'Hamstrings', 'Barbell',  'Keep a slight, fixed bend in the knees (don''t lock them straight). Push your hips back, slide the bar down your thighs, and feel the pull in your hamstrings.'),
   ('Leg Curl',            'Hamstrings', 'Machine',  'Controlled reps, no jerking. Pause briefly at the top of the contraction.'),
-  ('Hip Thrust',          'Glutes',     'Barbell',  'Upper back on the bench. Drive through your heels, lock out your glutes at the top, chin tucked.'),
+  ('Hip Thrust',          'Glutes',     'Bodyweight', 'Upper back on the bench. Drive through your heels, lock out your glutes at the top, chin tucked. Add reps first; a plate on the hips comes later.'),
   ('Calf Raise',          'Calves',     'Machine',  'Full range of motion — lower into a stretch, rise onto your toes as high as you can. Hold at the top.'),
   -- Cardio
   ('Treadmill',           'Cardio', 'Machine', 'Zone 2: you should still be able to hold a conversation while walking or running. Stand tall and don''t hold the rails.'),
@@ -110,12 +120,12 @@ on conflict (name) do update
 delete from schedule;
 
 insert into schedule (day_of_week, session, notes) values
-  ('Monday',    'Full Body A', 'Squat focus'),
-  ('Tuesday',   'Cardio',      'Zone 2, 30-45 min'),
-  ('Wednesday', 'Full Body B', 'Deadlift focus'),
-  ('Thursday',  'HIIT',        '15-20 min, hard'),
-  ('Friday',    'Full Body C', 'Machines & glutes'),
-  ('Saturday',  'Cardio',      'Optional, keep it easy'),
+  ('Monday',    'Full Body A', 'Squat focus · ~60 min with finisher'),
+  ('Tuesday',   'REST',        'Walk if you feel like it'),
+  ('Wednesday', 'Full Body B', 'Deadlift focus · ~60 min with finisher'),
+  ('Thursday',  'REST',        'Walk if you feel like it'),
+  ('Friday',    'Full Body C', 'Machines & glutes · ~50 min'),
+  ('Saturday',  'Cardio Day',  'Intervals, then zone 2 · ~50 min'),
   ('Sunday',    'REST',        'A proper day off');
 
 -- Program. Warm-ups sort below zero, main work from 1, cool-downs from 90.
@@ -129,13 +139,14 @@ insert into programs
   ('Full Body A', 'Leg Swings',                            1, '10x per leg',      0,   0,   -3),
   ('Full Body A', 'Arm Circles',                           1, '20x each direction', 0, 0,   -2),
   ('Full Body A', 'Bodyweight Squat (Warm Up)',            1, '15x',              0,   0,   -1),
-  ('Full Body A', 'Squat',                                 3, '8-12',           120,  10,    1),
+  ('Full Body A', 'Squat',                                 3, '8-12',           120,  13,    1),
   ('Full Body A', 'Bench Press',                           3, '8-12',            90,  40,    2),
   ('Full Body A', 'Seated Cable Row',                      3, '10-12',           90,  30,    3),
   ('Full Body A', 'Romanian Deadlift',                     2, '10-12',           90,  30,    4),
   ('Full Body A', 'Plank',                                 3, '30-45 sec',       60,   0,    5),
-  ('Full Body A', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   90),
-  ('Full Body A', 'Quad Stretch',                          1, '30 sec per side',  0,   0,   91),
+  ('Full Body A', 'Stationary Bike',                       1, '15 min, zone 2',   0,   0,   90),
+  ('Full Body A', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   91),
+  ('Full Body A', 'Quad Stretch',                          1, '30 sec per side',  0,   0,   92),
 
   -- Full Body B — hinge pattern leads
   ('Full Body B', 'Jumping Jacks / Brisk Walk',            1, '3 min',            0,   0,   -4),
@@ -147,8 +158,9 @@ insert into programs
   ('Full Body B', 'Lat Pulldown',                          3, '10-12',           90,  27,    3),
   ('Full Body B', 'Walking Lunge',                         2, '12 per leg',      90,  16,    4),
   ('Full Body B', 'Dead Bug',                              3, '10 per side',     60,   0,    5),
-  ('Full Body B', 'Hip Flexor Stretch',                    1, '30 sec per side',  0,   0,   90),
-  ('Full Body B', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   91),
+  ('Full Body B', 'Treadmill',                             1, '15 min incline walk, zone 2', 0, 0, 90),
+  ('Full Body B', 'Hip Flexor Stretch',                    1, '30 sec per side',  0,   0,   91),
+  ('Full Body B', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   92),
 
   -- Full Body C — machines and glutes, easiest to push load on
   ('Full Body C', 'Jumping Jacks / Brisk Walk',            1, '3 min',            0,   0,   -4),
@@ -158,19 +170,19 @@ insert into programs
   ('Full Body C', 'Leg Press',                             3, '10-15',           90,  45,    1),
   ('Full Body C', 'Incline DB Press',                      3, '10-12',           90,  20,    2),
   ('Full Body C', 'Bent Over Row',                         3, '8-12',            90,  25,    3),
-  ('Full Body C', 'Hip Thrust',                            3, '10-15',           90,  30,    4),
+  ('Full Body C', 'Hip Thrust',                            3, '10-15',           90,   0,    4),
   ('Full Body C', 'Pallof Press',                          3, '12 per side',     60,  10,    5),
   ('Full Body C', 'Quad Stretch',                          1, '30 sec per side',  0,   0,   90),
   ('Full Body C', 'Child''s Pose / Cat-Cow (Cool Down)',   1, '1 min',            0,   0,   91),
 
-  -- Cardio — steady, zone 2
-  ('Cardio', 'Jumping Jacks / Brisk Walk',                 1, '3 min',            0,   0,   -1),
-  ('Cardio', 'Treadmill',                                  1, '30-45 min',        0,   0,    1),
-  ('Cardio', 'Easy Walk / Light Cycling (Cool Down)',      1, '5 min',            0,   0,   90),
-
-  -- HIIT — the one hard cardio slot
-  ('HIIT',   'Jumping Jacks / Brisk Walk',                 1, '5 min',            0,   0,   -1),
-  ('HIIT',   'HIIT Interval',                              1, '15-20 min',        0,   0,    1),
-  ('HIIT',   'Easy Walk / Light Cycling (Cool Down)',      1, '5 min',            0,   0,   90);
+  -- Cardio Day — Saturday, the one session built around cardio.
+  -- Intervals first while fresh, then steady zone 2. Start at 6 rounds for the
+  -- first two weeks and build to 10. Log rounds and minutes as reps.
+  ('Cardio Day', 'Jumping Jacks / Brisk Walk',             1, '5 min',            0,   0,   -1),
+  ('Cardio Day', 'HIIT Interval',                          1, '6-10 rounds: 30s hard / 90s easy', 0, 0, 1),
+  ('Cardio Day', 'Treadmill',                              1, '20-25 min, zone 2', 0,  0,    2),
+  ('Cardio Day', 'Easy Walk / Light Cycling (Cool Down)',  1, '5 min',            0,   0,   90),
+  ('Cardio Day', 'Hamstring Stretch',                      1, '30 sec per side',  0,   0,   91),
+  ('Cardio Day', 'Quad Stretch',                           1, '30 sec per side',  0,   0,   92);
 
 commit;

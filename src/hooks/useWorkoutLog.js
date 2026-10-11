@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { workoutApi, activityApi, fetchBundle, deserializeBundle } from "@/actions/data";
 import { buildScheduleMap, getPlanFor, monthCalendar, DAY_NAMES } from "@/lib/schedule";
+import { nextTarget } from "@/lib/progression";
 
 /** Fallback only — the real list comes from whatever sessions the data defines. */
 export const SESSIONS = ["Full Body A", "Full Body B", "Full Body C", "Cardio", "HIIT"];
@@ -250,6 +251,20 @@ export function useWorkoutLog() {
   );
 
   /**
+   * This session's working weight for an exercise, worked out from the last
+   * time it was trained (see lib/progression). Falls back to the program's
+   * target when there is no history.
+   */
+  const getNextTarget = useCallback(
+    (exerciseName) => {
+      const program = sessionProgram.find((p) => p.exercise_name === exerciseName);
+      const exercise = exercises.find((e) => e.name === exerciseName);
+      return nextTarget(program, getLastPerformance(exerciseName)?.sets, exercise);
+    },
+    [sessionProgram, exercises, getLastPerformance]
+  );
+
+  /**
    * Best effort on record, as { metric, value, log }.
    *
    * Loaded lifts rank by weight. Bodyweight work carries no load, so ranking it
@@ -469,6 +484,7 @@ export function useWorkoutLog() {
     getLastWeight,
     getLastReps,
     getLastPerformance,
+    getNextTarget,
     getPersonalBest,
     logSet,
     retrySet,

@@ -36,12 +36,15 @@ edit / delete semuanya benar.
 
 - **Langkah 1 & 2 sudah selesai.** Schema sudah di Neon, data Sheet sudah
   dimigrasi dan jumlah barisnya cocok (112 / 71 / 44 / 7 / 7).
-- **Program sekarang Full Body** lewat `db/seed-program.sql`:
-  Senin Full Body A · Selasa Cardio · Rabu Full Body B · Kamis HIIT ·
-  Jumat Full Body C · Sabtu Cardio · Minggu rest. Push/Pull/Legs sempat
+- **Program sekarang 3+1** lewat `db/seed-program.sql`: Senin Full Body A ·
+  Rabu Full Body B · Jumat Full Body C · Sabtu Cardio Day; Selasa, Kamis,
+  Minggu libur. Sesi weekday ±60 menit (maks 90). Push/Pull/Legs sempat
   dipakai 28 Sep – 1 Okt; riwayatnya tetap ada di log.
-- **Jalan kaki harian** dicatat di tabel `daily_activity` (target 8.000
-  langkah), terpisah dari sesi supaya jalan kaki nggak kehitung hari gym di kalender.
+- **Target beban otomatis** dari sesi terakhir (`src/lib/progression.js`);
+  angka di `programs.target_weight` cuma titik awal kalau belum ada riwayat.
+- **Jalan kaki** dicatat di tabel `daily_activity`, targetnya rata-rata
+  6.500 langkah per 7 hari (bukan kuota harian), terpisah dari sesi supaya
+  jalan kaki nggak kehitung hari gym di kalender.
 - **Semua copy di app sudah bahasa Inggris**, termasuk nama hari di
   `schedule` (`Monday` … `Sunday`).
 - **Jangan jalankan migrasi Sheet lagi** — sheet-nya masih pakai nama hari
@@ -114,7 +117,7 @@ Merge branch-nya, tunggu Vercel deploy, lalu buka appnya. Yang harus benar:
   dan kartu "Steps today" muncul di layar Lift
 - Data lama muncul — kalender bulan ini dan riwayat sesuai
 - Catat 1 set baru, refresh, set-nya masih ada
-- Pilihan sesi di layar Lift: Full Body A, Cardio, Full Body B, HIIT, Full Body C
+- Pilihan sesi di layar Lift: Full Body A, Full Body B, Full Body C, Cardio Day
 
 ### 5. Rotate kredensial Neon
 

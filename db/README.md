@@ -42,9 +42,11 @@ Rows whose date is unusable are skipped and counted rather than guessed at.
 
 ## The program
 
-`db/seed-program.sql` holds the current training block: three full-body days,
-two cardio slots, one HIIT slot and a rest day, aimed at waist and visceral
-fat. It replaces `programs` and `schedule` wholesale, so it is safe to re-run
+`db/seed-program.sql` holds the current training block: three full-body days
+and one cardio day (intervals, then zone 2), aimed at waist and visceral fat.
+Its `target_weight` values are only the starting point for an exercise with
+no history; after that the app progresses the weight from the last session
+(`src/lib/progression.js`). It replaces `programs` and `schedule` wholesale, so it is safe to re-run
 when the block changes. `workout_logs` keeps its own session names, so
 history under earlier programs (Upper/Lower, Push/Pull/Legs) stays readable
 even though those sessions are no longer offered on the Lift screen.

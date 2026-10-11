@@ -4,7 +4,7 @@ import { STEP_GOAL } from "@/actions/data";
 import { FiCheck, FiEdit2 } from "react-icons/fi";
 
 /**
- * Daily walking, kept visually apart from the session work.
+ * Walking, judged on the seven-day average rather than on any one day.
  *
  * Stored apart from workout_logs on purpose: a walk is not a gym session, so
  * it never turns a rest day into a gym day on the calendar.
@@ -19,15 +19,15 @@ export default function WalkCard({ today, steps, weekSteps, onSave }) {
     if (!editing) setValue(String(steps || ""));
   }, [steps, editing]);
 
-  const done = steps >= STEP_GOAL;
-  const pct = Math.min(100, (steps / STEP_GOAL) * 100);
-
-  // Seven-day average says more than one day: NEAT is a weekly habit, and a
-  // single quiet day means little on its own.
+  // Days with no entry are left out rather than counted as zero: an unlogged
+  // day is missing data, not a day without walking.
   const logged = weekSteps.filter((d) => d.steps > 0);
   const avg = logged.length
     ? Math.round(logged.reduce((s, d) => s + d.steps, 0) / logged.length)
     : 0;
+
+  const done = avg >= STEP_GOAL;
+  const pct = Math.min(100, (avg / STEP_GOAL) * 100);
 
   const save = async () => {
     const n = parseInt(value, 10);
@@ -42,9 +42,9 @@ export default function WalkCard({ today, steps, weekSteps, onSave }) {
     <div className="card p-4">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="min-w-0">
-          <p className="text-xs text-ink-muted mb-1">Steps today</p>
+          <p className="text-xs text-ink-muted mb-1">Steps · 7-day average</p>
           <p className="text-2xl font-semibold text-ink tabular leading-none flex items-baseline gap-1.5">
-            {steps.toLocaleString("en-US")}
+            {avg.toLocaleString("en-US")}
             <span className="text-sm font-normal text-ink-faint">
               / {STEP_GOAL.toLocaleString("en-US")}
             </span>
@@ -58,7 +58,7 @@ export default function WalkCard({ today, steps, weekSteps, onSave }) {
             className="btn btn-secondary btn-sm shrink-0"
           >
             <FiEdit2 size={13} />
-            {steps > 0 ? "Edit" : "Log"}
+            {steps > 0 ? "Edit today" : "Log today"}
           </button>
         )}
       </div>
@@ -99,17 +99,14 @@ export default function WalkCard({ today, steps, weekSteps, onSave }) {
 
           <div className="flex items-baseline justify-between mt-2.5">
             <p className="text-xs text-ink-muted">
-              {avg > 0 ? (
-                <>7-day average <span className="font-medium text-ink tabular">{avg.toLocaleString("en-US")}</span></>
-              ) : (
-                "Nothing logged this week"
-              )}
+              Today{" "}
+              <span className="font-medium text-ink tabular">
+                {steps > 0 ? steps.toLocaleString("en-US") : "not logged"}
+              </span>
             </p>
-            {!done && steps > 0 && (
-              <p className="text-xs text-ink-faint tabular">
-                {(STEP_GOAL - steps).toLocaleString("en-US")} to go
-              </p>
-            )}
+            <p className="text-xs text-ink-faint">
+              {logged.length ? `${logged.length} of 7 days logged` : "Nothing logged this week"}
+            </p>
           </div>
         </>
       )}

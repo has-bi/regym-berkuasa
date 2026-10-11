@@ -73,8 +73,12 @@ export function fetchBundle() {
   return request("/api/data/bundle");
 }
 
-/** Daily step target. The goal here is waist, and NEAT moves that needle. */
-export const STEP_GOAL = 8000;
+/**
+ * Walking target, as a seven-day average rather than a daily quota. Most of
+ * the health benefit of steps arrives by about 5,000-7,000 a day, and an
+ * average lets a gym day carry a quiet one.
+ */
+export const STEP_GOAL = 6500;
 
 function deserializeActivity(r) {
   return {
