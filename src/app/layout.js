@@ -34,6 +34,10 @@ export const viewport = {
   // Pinch-zoom stays enabled (WCAG 1.4.4). iOS only auto-zooms on focus when an
   // input is under 16px, so `.field` sets 16px instead of locking the scale.
   viewportFit: "cover",
+  // Android Chrome: let the on-screen keyboard shrink the layout, so fixed
+  // sheets sit above it instead of behind it. iOS ignores this; Sheet tracks
+  // the visual viewport for that case.
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({ children }) {
