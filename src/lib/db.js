@@ -98,7 +98,13 @@ export async function fetchBundle() {
         'schedule',    (select coalesce(json_agg(s order by s.day_of_week), '[]'::json) from schedule s),
         'workoutLogs', (select coalesce(json_agg(w order by w.date, w.set_number), '[]'::json) from workout_logs w),
         'bodyMetrics', (select coalesce(json_agg(b order by b.date desc), '[]'::json) from body_metrics b),
-        'dailyActivity', (select coalesce(json_agg(d order by d.date desc), '[]'::json) from daily_activity d)
+        'dailyActivity', (select coalesce(json_agg(d order by d.date desc), '[]'::json) from daily_activity d),
+        'foods',       (select coalesce(json_agg(f order by f.name), '[]'::json) from foods f),
+        -- Recent days only: the Food tab shows one day at a time, and this
+        -- table grows by several rows a day where the others grow by a few a week.
+        'foodLogs',    (select coalesce(json_agg(l order by l.date, l.created_at), '[]'::json)
+                          from food_logs l where l.date >= current_date - 60),
+        'settings',    (select coalesce(json_object_agg(s.key, s.value), '{}'::json) from settings s)
       ) as bundle`;
     return rows[0].bundle;
   } catch (err) {
@@ -200,6 +206,95 @@ export async function setDailyActivity(p) {
             updated_at   = now()
       returning date, steps, walk_minutes`;
     return rows[0];
+  } catch (err) {
+    throw wrap(err);
+  }
+}
+
+/** Postgres reports a duplicate food name as a constraint error; say it plainly. */
+function wrapFood(err) {
+  if (/foods_name_key|duplicate key/i.test(String(err?.message))) {
+    return new DbError("You already have a food with that name.", "query");
+  }
+  return wrap(err);
+}
+
+export async function addFood(p) {
+  const sql = client();
+  try {
+    const rows = await sql`
+      insert into foods (name, portion, kcal, protein, carbs, fat)
+      values (${p.name}, ${p.portion || "1 portion"}, ${p.kcal}, ${p.protein}, ${p.carbs}, ${p.fat})
+      returning *`;
+    return rows[0];
+  } catch (err) {
+    throw wrapFood(err);
+  }
+}
+
+export async function updateFood(id, p) {
+  const sql = client();
+  try {
+    const rows = await sql`
+      update foods
+         set name = ${p.name}, portion = ${p.portion || "1 portion"}, kcal = ${p.kcal},
+             protein = ${p.protein}, carbs = ${p.carbs}, fat = ${p.fat}
+       where id = ${id}
+      returning *`;
+    if (!rows.length) throw new DbError("That food no longer exists.", "notfound");
+    return rows[0];
+  } catch (err) {
+    throw wrapFood(err);
+  }
+}
+
+/** Past entries keep their copied values; only the library row goes. */
+export async function deleteFood(id) {
+  const sql = client();
+  try {
+    await sql`delete from foods where id = ${id}`;
+    return { ok: true };
+  } catch (err) {
+    throw wrap(err);
+  }
+}
+
+export async function addFoodLog(p) {
+  const sql = client();
+  try {
+    const rows = await sql`
+      insert into food_logs
+        (client_id, date, food_id, name, portion, servings, kcal, protein, carbs, fat)
+      values (${p.client_id}, ${p.date}, ${p.food_id ?? null}, ${p.name}, ${p.portion ?? ""},
+              ${p.servings}, ${p.kcal}, ${p.protein}, ${p.carbs}, ${p.fat})
+      on conflict (client_id) do nothing
+      returning id`;
+    if (rows.length) return { id: rows[0].id, duplicate: false };
+
+    const existing = await sql`select id from food_logs where client_id = ${p.client_id}`;
+    return { id: existing[0]?.id ?? null, duplicate: true };
+  } catch (err) {
+    throw wrap(err);
+  }
+}
+
+export async function deleteFoodLog(id) {
+  const sql = client();
+  try {
+    await sql`delete from food_logs where id = ${id}`;
+    return { ok: true };
+  } catch (err) {
+    throw wrap(err);
+  }
+}
+
+export async function setSetting(key, value) {
+  const sql = client();
+  try {
+    await sql`
+      insert into settings (key, value) values (${key}, ${JSON.stringify(value)}::jsonb)
+      on conflict (key) do update set value = excluded.value, updated_at = now()`;
+    return { ok: true };
   } catch (err) {
     throw wrap(err);
   }

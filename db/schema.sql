@@ -103,3 +103,51 @@ create table if not exists daily_activity (
 );
 
 create index if not exists daily_activity_date_idx on daily_activity (date desc);
+
+-- Personal food library: the things actually eaten, each with one portion.
+--
+-- Per portion rather than per 100 g, because the same few meals repeat and a
+-- portion is how they are thought of ("one plate of nasi goreng"). Logging is
+-- then a tap and a multiplier instead of weighing food.
+create table if not exists foods (
+  id         uuid primary key default gen_random_uuid(),
+  name       text not null unique,
+  portion    text not null default '1 portion',
+  kcal       integer not null default 0,
+  protein    numeric(6,1) not null default 0,
+  carbs      numeric(6,1) not null default 0,
+  fat        numeric(6,1) not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- One row per thing eaten.
+--
+-- Name, portion and totals are copied in at logging time rather than read
+-- through food_id, so editing or deleting a food later never rewrites what was
+-- already eaten. The totals are already multiplied by servings.
+create table if not exists food_logs (
+  id         uuid primary key default gen_random_uuid(),
+  -- Same idempotency guard as workout_logs: a retried write is a no-op.
+  client_id  text unique,
+  date       date not null,
+  food_id    uuid references foods(id) on delete set null,
+  name       text not null,
+  portion    text not null default '',
+  servings   numeric(5,2) not null default 1,
+  kcal       integer not null default 0,
+  protein    numeric(6,1) not null default 0,
+  carbs      numeric(6,1) not null default 0,
+  fat        numeric(6,1) not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists food_logs_date_idx on food_logs (date desc);
+
+-- Small key/value store for settings that have no table of their own.
+-- 'profile' holds { sex, age } for the calorie target; weight and height come
+-- from body_metrics so the target follows the scale.
+create table if not exists settings (
+  key        text primary key,
+  value      jsonb not null,
+  updated_at timestamptz not null default now()
+);

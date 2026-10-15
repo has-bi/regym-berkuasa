@@ -89,6 +89,26 @@ function deserializeActivity(r) {
   };
 }
 
+const macros = (r) => ({
+  kcal: Number(r.kcal) || 0,
+  protein: Number(r.protein) || 0,
+  carbs: Number(r.carbs) || 0,
+  fat: Number(r.fat) || 0,
+});
+
+function deserializeFood(r) {
+  return { ...row(r), ...macros(r) };
+}
+
+function deserializeFoodLog(r) {
+  return {
+    ...row(r),
+    ...macros(r),
+    servings: Number(r.servings) || 1,
+    date: String(r.date).slice(0, 10),
+  };
+}
+
 export function deserializeBundle(b) {
   return {
     exercises: (b.exercises || []).map(row),
@@ -97,6 +117,9 @@ export function deserializeBundle(b) {
     workoutLogs: (b.workoutLogs || []).map(deserializeWorkoutLog),
     bodyMetrics: (b.bodyMetrics || []).map(deserializeBodyMetric),
     dailyActivity: (b.dailyActivity || []).map(deserializeActivity),
+    foods: (b.foods || []).map(deserializeFood),
+    foodLogs: (b.foodLogs || []).map(deserializeFoodLog),
+    settings: b.settings || {},
   };
 }
 
@@ -113,4 +136,13 @@ export const bodyApi = {
 
 export const activityApi = {
   set: (payload) => request("/api/data/activity", { action: "set", payload }),
+};
+
+export const foodApi = {
+  addFood: (payload) => request("/api/data/food", { action: "addFood", payload }),
+  updateFood: (id, payload) => request("/api/data/food", { action: "updateFood", id, payload }),
+  deleteFood: (id) => request("/api/data/food", { action: "deleteFood", id }),
+  log: (payload) => request("/api/data/food", { action: "log", payload }),
+  deleteLog: (id) => request("/api/data/food", { action: "deleteLog", id }),
+  setProfile: (payload) => request("/api/data/food", { action: "setSetting", key: "profile", payload }),
 };

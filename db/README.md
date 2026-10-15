@@ -18,6 +18,9 @@ APPS_SCRIPT_URL=<your /exec url> DATABASE_URL=<neon url> \
 
 # 4. Load the program, the weekly schedule and the English exercise catalogue
 psql "$DATABASE_URL" -f db/seed-program.sql
+
+# 5. Starter food library for the calorie counter (insert-only, safe to re-run)
+psql "$DATABASE_URL" -f db/seed-foods.sql
 ```
 
 The seed goes last, after the migration. The sheet still holds the old
