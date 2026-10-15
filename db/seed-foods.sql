@@ -64,5 +64,46 @@ insert into foods (name, portion, kcal, protein, carbs, fat) values
   ('Es Teh Manis',                 '1 glass',          120,  0,   30,    0),
   ('Teh Tawar',                    '1 glass',            0,  0,    0,    0),
   ('Kopi Susu Gula Aren',          '1 cup',            200,  4,   30,    7),
-  ('Americano',                    '1 cup',             10,  0.3,  1.7,  0)
+  ('Americano',                    '1 cup',             10,  0.3,  1.7,  0),
+
+  -- Nusantara: rice and noodle plates (rice included unless the name says otherwise)
+  ('Bubur Ayam',                   '1 bowl, complete', 370, 18,   50,   11),
+  ('Lontong Padang',               '1 portion',        450, 13,   55,   20),
+  ('Ketupat Sayur',                '1 portion',        400, 10,   55,   15),
+  ('Ketoprak',                     '1 plate',          500, 17,   60,   22),
+  ('Nasi Uduk',                    '1 portion rice',   300,  5,   50,    9),
+  ('Nasi Kuning',                  '1 plate, complete', 550, 18,  70,   22),
+  ('Nasi Goreng',                  '1 plate, with egg', 600, 18,  75,   25),
+  ('Mie Goreng',                   '1 plate',          550, 15,   70,   23),
+  ('Mie Ayam',                     '1 bowl',           450, 20,   60,   14),
+  ('Nasi Rames',                   '1 plate',          650, 25,   80,   25),
+  ('Nasi Padang',                  '1 plate, rendang', 800, 32,   85,   37),
+  ('Nasi Gudeg',                   '1 plate, complete', 600, 22,  75,   24),
+  ('Ayam Geprek + Nasi',           '1 plate',          700, 32,   70,   32),
+  ('Pecel Lele + Nasi',            '1 plate',          650, 25,   65,   32),
+  ('Nasi Bebek Goreng',            '1 plate',          850, 35,   70,   48),
+  ('Lontong',                      '1 lontong',        150,  3,   33,    0.3),
+
+  -- Nusantara: satay and soups (no rice)
+  ('Sate Padang',                  '10 skewers + ketupat', 550, 30, 55, 23),
+  ('Sate Ayam',                    '10 skewers, peanut sauce', 450, 33, 15, 29),
+  ('Sate Kambing',                 '10 skewers',       420, 30,    6,   31),
+  ('Rawon',                        '1 bowl, no rice',  300, 22,    8,   20),
+  ('Soto Betawi',                  '1 bowl, no rice',  450, 22,   10,   36),
+  ('Coto Makassar',                '1 bowl, no ketupat', 350, 28,  8,   23),
+  ('Sop Buntut',                   '1 bowl, no rice',  450, 28,   10,   33),
+  ('Tongseng Kambing',             '1 bowl, no rice',  400, 24,   12,   28),
+  ('Empal Gentong',                '1 bowl, no rice',  400, 22,   10,   30),
+
+  -- Nusantara: street food and snacks
+  ('Siomay Bandung',               '1 portion',        400, 18,   45,   16),
+  ('Batagor',                      '1 portion',        500, 18,   45,   27),
+  ('Pempek',                       '1 portion, with cuko', 450, 18, 60, 15),
+  ('Seblak',                       '1 bowl',           400, 10,   55,   16),
+  ('Cilok',                        '10 pcs',           250,  3,   50,    4),
+  ('Martabak Telur',               '2 pieces',         350, 14,   25,   22),
+  ('Martabak Manis',               '2 pieces',         450,  8,   55,   22),
+  ('Risoles',                      '1 pc',             160,  4,   15,    9.5),
+  ('Lemper',                       '1 pc',             130,  4,   20,    3.8),
+  ('Klepon',                       '5 pcs',            200,  2,   42,    3)
 on conflict (name) do nothing;
