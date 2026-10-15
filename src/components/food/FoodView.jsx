@@ -183,11 +183,26 @@ export default function FoodView() {
           <MacroBar label="Fat" value={totals.fat} target={targets?.fat} />
         </div>
         {targets && (
-          <button onClick={() => setEditingProfile(true)}
-            className="mt-3.5 text-xs text-ink-faint hover:text-ink inline-flex items-center gap-1.5">
-            <FiSettings size={11} />
-            {fmt(targets.maintenance)} maintenance − 500 · {targets.weight} kg · {targets.height} cm
-          </button>
+          <div className="mt-3.5 pt-3 border-t border-line flex items-start justify-between gap-3">
+            {/* Where the target comes from: the day's burn, less the deficit */}
+            <p className="text-xs text-ink-muted leading-relaxed tabular">
+              Burned ~{fmt(targets.burn.burn)}: rest {fmt(targets.burn.rest)}
+              {targets.burn.exercise > 0 && (
+                <> + workout {fmt(targets.burn.exercise)}{targets.burn.planned && " (planned)"}</>
+              )}
+              {targets.burn.steps > 0 && <> + steps {fmt(targets.burn.steps)}</>}
+              {" "}− 500 deficit
+              {targets.burn.hasFood && (
+                <span className={targets.burn.balance > 0 ? "text-emerald-700" : "text-amber-700"}>
+                  {" · "}{targets.burn.balance > 0 ? "deficit" : "surplus"} {fmt(Math.abs(targets.burn.balance))} so far
+                </span>
+              )}
+            </p>
+            <button onClick={() => setEditingProfile(true)} aria-label="Edit target profile"
+              className="btn btn-ghost btn-icon shrink-0 -mr-2 -mt-1.5">
+              <FiSettings size={13} />
+            </button>
+          </div>
         )}
       </div>
 

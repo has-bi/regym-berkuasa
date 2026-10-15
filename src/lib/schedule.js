@@ -62,8 +62,12 @@ export function getPlanFor(dateStr, scheduleMap) {
  *
  * Past days are read against the current schedule, so they reflect the plan
  * as it stands now, not whatever it was on that date.
+ *
+ * With an energy model (lib/energy.js), each past day that has food logged
+ * also gets `deficit`: true when it burned more than was eaten. Today is left
+ * out until it is over — a half-eaten day always looks like a deficit.
  */
-export function monthCalendar(logs, scheduleMap, todayStr) {
+export function monthCalendar(logs, scheduleMap, todayStr, energy = null) {
   const trained = new Set((logs || []).map((l) => l.date).filter(Boolean));
   const today = parseDateStr(todayStr);
   const year = today.getFullYear();
@@ -76,6 +80,8 @@ export function monthCalendar(logs, scheduleMap, todayStr) {
   for (let i = 0; i < lead; i++) cells.push(null);
 
   let gymDays = 0;
+  let deficitDays = 0;
+  let surplusDays = 0;
   for (let d = 1; d <= daysInMonth; d++) {
     const date = toDateStr(new Date(year, month, d));
     const plan = getPlanFor(date, scheduleMap);
@@ -89,7 +95,20 @@ export function monthCalendar(logs, scheduleMap, todayStr) {
     else status = isToday ? "today" : "planned";
 
     if (status === "done") gymDays += 1;
-    cells.push({ date, day: d, isToday, status, session: plan.isRest ? "" : plan.session });
+
+    let deficit = null;
+    let balance = null;
+    if (energy && past) {
+      const e = energy(date);
+      if (e.hasFood) {
+        balance = e.balance;
+        deficit = e.balance > 0;
+      }
+    }
+    if (deficit) deficitDays += 1;
+    if (deficit === false) surplusDays += 1;
+
+    cells.push({ date, day: d, isToday, status, session: plan.isRest ? "" : plan.session, deficit, balance });
   }
   while (cells.length % 7) cells.push(null);
 
@@ -97,5 +116,7 @@ export function monthCalendar(logs, scheduleMap, todayStr) {
     label: today.toLocaleDateString("en-GB", { month: "long", year: "numeric" }),
     cells,
     gymDays,
+    deficitDays,
+    surplusDays,
   };
 }

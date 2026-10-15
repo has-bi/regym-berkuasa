@@ -30,6 +30,18 @@ const LEGEND = [
   { label: "Rest", swatch: "bg-surface-raised" },
 ];
 
+/** The food side: a small dot under the date, so it reads as a second layer. */
+const BALANCE_LEGEND = [
+  { label: "Deficit", swatch: "bg-emerald-500" },
+  { label: "Surplus", swatch: "bg-amber-500" },
+];
+
+function balanceTitle(c) {
+  if (c.deficit == null) return "";
+  const n = Math.abs(c.balance).toLocaleString("en-US");
+  return ` · ${c.deficit ? "deficit" : "surplus"} ${n} kcal`;
+}
+
 /**
  * This month at a glance: which days were gym days and which were not.
  * Today's plan sits above it, since that is what the screen is opened for.
@@ -63,6 +75,12 @@ export default function MonthCard({ calendar, todayPlan, trainedToday }) {
             {calendar.gymDays}{" "}
             <span className="font-normal text-ink-muted">gym {calendar.gymDays === 1 ? "day" : "days"}</span>
           </p>
+          {calendar.deficitDays + calendar.surplusDays > 0 && (
+            <p className="text-xs text-ink-muted tabular mt-0.5">
+              <span className="text-emerald-700 font-medium">{calendar.deficitDays}</span>
+              {" "}of {calendar.deficitDays + calendar.surplusDays} days in deficit
+            </p>
+          )}
         </div>
       </div>
 
@@ -74,15 +92,21 @@ export default function MonthCard({ calendar, todayPlan, trainedToday }) {
         ))}
         {calendar.cells.map((c, i) =>
           c ? (
-            <div key={c.date} className="flex justify-center">
+            <div key={c.date} className="flex flex-col items-center gap-0.5">
               <span
-                title={`${c.day}: ${c.session ? `${c.session} — ` : ""}${LABEL[c.status]}`}
+                title={`${c.day}: ${c.session ? `${c.session} — ` : ""}${LABEL[c.status]}${balanceTitle(c)}`}
                 className={`h-8 w-8 rounded-full flex items-center justify-center text-xs tabular ${
                   CELL[c.status]
                 } ${c.isToday && c.status === "done" ? "ring-2 ring-offset-2 ring-ink/20" : ""}`}
               >
                 {c.day}
               </span>
+              {/* Always rendered so rows keep the same height with or without food data */}
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  c.deficit === true ? "bg-emerald-500" : c.deficit === false ? "bg-amber-500" : "bg-transparent"
+                }`}
+              />
             </div>
           ) : (
             <span key={`pad-${i}`} />
@@ -94,6 +118,12 @@ export default function MonthCard({ calendar, todayPlan, trainedToday }) {
         {LEGEND.map((l) => (
           <span key={l.label} className="inline-flex items-center gap-1.5 text-[11px] text-ink-muted">
             <span className={`h-2.5 w-2.5 rounded-full ${l.swatch}`} />
+            {l.label}
+          </span>
+        ))}
+        {BALANCE_LEGEND.map((l) => (
+          <span key={l.label} className="inline-flex items-center gap-1.5 text-[11px] text-ink-muted">
+            <span className={`h-1.5 w-1.5 rounded-full ${l.swatch}`} />
             {l.label}
           </span>
         ))}

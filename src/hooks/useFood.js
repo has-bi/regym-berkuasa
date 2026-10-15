@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { foodApi, fetchBundle, deserializeBundle } from "@/actions/data";
-import { dailyTargets } from "@/lib/nutrition";
-import { toDateStr } from "@/lib/schedule";
+import { targetsFor } from "@/lib/nutrition";
+import { energyModel } from "@/lib/energy";
+import { toDateStr, buildScheduleMap, getPlanFor } from "@/lib/schedule";
 
 const ZERO = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
 
@@ -31,6 +32,8 @@ export function useFood() {
   const [logs, setLogs] = useState([]);
   const [profile, setProfile] = useState(null);
   const [latestMetric, setLatestMetric] = useState(null);
+  // Training data, for what each day burned.
+  const [training, setTraining] = useState({ workoutLogs: [], programs: [], exercises: [], activity: [], schedule: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -41,6 +44,13 @@ export function useFood() {
       setLogs(b.foodLogs);
       setProfile(b.settings.profile ?? null);
       setLatestMetric([...b.bodyMetrics].sort((x, y) => y.date.localeCompare(x.date))[0] ?? null);
+      setTraining({
+        workoutLogs: b.workoutLogs,
+        programs: b.programs,
+        exercises: b.exercises,
+        activity: b.dailyActivity,
+        schedule: b.schedule,
+      });
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -51,7 +61,26 @@ export function useFood() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  const targets = useMemo(() => dailyTargets(profile, latestMetric), [profile, latestMetric]);
+  const energy = useMemo(
+    () => energyModel({ profile, metric: latestMetric, ...training, foodLogs: logs }),
+    [profile, latestMetric, training, logs]
+  );
+
+  /**
+   * What the selected day burned and the target that follows from it. Today
+   * counts the scheduled session until the real one is logged, so the morning
+   * target is not set as if it were a rest day.
+   */
+  const day = useMemo(() => {
+    if (!energy) return null;
+    const plan = date === today ? getPlanFor(date, buildScheduleMap(training.schedule)) : null;
+    return energy(date, plan && !plan.isRest ? plan.session : "");
+  }, [energy, date, today, training.schedule]);
+
+  const targets = useMemo(
+    () => (day ? { ...targetsFor(day.burn, { sex: profile.sex, weight: latestMetric.weight }), burn: day } : null),
+    [day, profile, latestMetric]
+  );
 
   const dayLogs = useMemo(() => logs.filter((l) => l.date === date), [logs, date]);
 

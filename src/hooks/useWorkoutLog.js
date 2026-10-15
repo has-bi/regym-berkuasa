@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { workoutApi, activityApi, fetchBundle, deserializeBundle } from "@/actions/data";
 import { buildScheduleMap, getPlanFor, monthCalendar, DAY_NAMES } from "@/lib/schedule";
 import { nextTarget } from "@/lib/progression";
+import { energyModel } from "@/lib/energy";
 
 /** Fallback only — the real list comes from whatever sessions the data defines. */
 export const SESSIONS = ["Full Body A", "Full Body B", "Full Body C", "Cardio", "HIIT"];
@@ -34,6 +35,8 @@ export function useWorkoutLog() {
   const [programs, setPrograms] = useState([]);
   const [schedule, setSchedule] = useState([]);
   const [activity, setActivity] = useState([]);
+  // For the calendar's deficit dots: what was eaten, and what it is measured against.
+  const [nutrition, setNutrition] = useState({ foodLogs: [], profile: null, metric: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSession, setActiveSession] = useState(null);
@@ -50,6 +53,11 @@ export function useWorkoutLog() {
       setPrograms(bundle.programs);
       setSchedule(bundle.schedule);
       setActivity(bundle.dailyActivity);
+      setNutrition({
+        foodLogs: bundle.foodLogs,
+        profile: bundle.settings.profile ?? null,
+        metric: [...bundle.bodyMetrics].sort((a, b) => b.date.localeCompare(a.date))[0] ?? null,
+      });
       setError(null);
 
       const todayLogs = bundle.workoutLogs.filter((l) => l.date === today);
@@ -74,9 +82,14 @@ export function useWorkoutLog() {
   const trainedToday = todayLogs.length > 0;
 
   /** This month, day by day: gym, rest, missed or still to come. */
+  const energy = useMemo(
+    () => energyModel({ ...nutrition, workoutLogs: logs, programs, exercises, activity }),
+    [nutrition, logs, programs, exercises, activity]
+  );
+
   const calendar = useMemo(
-    () => monthCalendar(logs, scheduleMap, today),
-    [logs, scheduleMap, today]
+    () => monthCalendar(logs, scheduleMap, today, energy),
+    [logs, scheduleMap, today, energy]
   );
 
   /** Scheduled sessions, Monday first — sets the order of the session picker. */

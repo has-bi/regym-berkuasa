@@ -44,8 +44,10 @@ edit / delete semuanya benar.
   angka di `programs.target_weight` cuma titik awal kalau belum ada riwayat.
 - **Tab Food = calorie counter.** Library makanan per porsi di tabel `foods`
   (awalnya dari `db/seed-foods.sql`), catatan harian di `food_logs`, target
-  dihitung dari `settings.profile` (jenis kelamin + umur) dan timbangan
-  terakhir (`src/lib/nutrition.js`).
+  per hari = estimasi bakar hari itu − 500 kcal (`src/lib/energy.js`):
+  BMR × 1,2 + latihan yang dicatat + langkah di atas 3.000. Hari gym target
+  lebih besar dari hari libur. Kalender di layar Lift kasih titik hijau
+  (defisit) / oranye (surplus) untuk tiap hari yang makanannya dicatat.
 - **Jalan kaki** dicatat di tabel `daily_activity`, targetnya rata-rata
   6.500 langkah per 7 hari (bukan kuota harian), terpisah dari sesi supaya
   jalan kaki nggak kehitung hari gym di kalender.
