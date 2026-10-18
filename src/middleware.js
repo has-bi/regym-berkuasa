@@ -29,6 +29,13 @@ function isPublic(pathname) {
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
+  // OAuth discovery. The Claude connector runs without sign-in, but a client
+  // that looks here must get a plain "not found" — redirected to the PIN page,
+  // it concludes there is an OAuth server and fails trying to register.
+  if (pathname.startsWith("/.well-known/oauth")) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
   if (isPublic(pathname)) return NextResponse.next();
 
   const token = request.cookies.get(SESSION_COOKIE)?.value;
