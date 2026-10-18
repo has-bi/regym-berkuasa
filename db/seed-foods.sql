@@ -59,6 +59,7 @@ insert into foods (name, portion, kcal, protein, carbs, fat) values
   ('Indomie Goreng',               '1 pack',           380,  8,   54,   14),
   ('Dada Ayam Bakar',              '100 g',            165, 31,    0,    3.6),
   ('Pisang',                       '1 banana',         105,  1.3, 24,    0.4),
+  ('Nanas',                        '100 g',             50,  0.5, 13,    0.1),
 
   -- Drinks
   ('Es Teh Manis',                 '1 glass',          120,  0,   30,    0),
@@ -141,6 +142,7 @@ insert into foods (name, portion, kcal, protein, carbs, fat) values
   ('Ultra Milk Full Cream',        '1 box (250 ml)',   160,  8,   12,    9),
   ('Ultra Milk Coklat',            '1 box (250 ml)',   200,  7,   28,    6.5),
   ('Yakult',                       '1 bottle (65 ml)',  50,  0.8, 11.5,  0),
+  ('Wall''s Feast',                 '1 stick',          180,  2.5, 18,   11),
 
   -- Kue tradisional. Per piece unless stated; sizes vary by maker.
   ('Kue Lapis',                    '1 pc',             140,  1,   25,    4),
