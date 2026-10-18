@@ -318,3 +318,14 @@ export async function setDayNote({ date, tag = "", note = "" }) {
     throw wrap(err);
   }
 }
+
+/** One day's food entries, for dates outside the bundle's 60-day window. */
+export async function foodLogsOn(date) {
+  const sql = client();
+  try {
+    // date::text: the driver turns a DATE into a JS Date, which would not match a yyyy-mm-dd key.
+    return await sql`select *, date::text as date from food_logs where date = ${date} order by created_at`;
+  } catch (err) {
+    throw wrap(err);
+  }
+}

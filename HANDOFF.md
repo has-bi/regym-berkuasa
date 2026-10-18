@@ -50,6 +50,10 @@ edit / delete semuanya benar.
   BMR × 1,2 + latihan yang dicatat + langkah di atas 3.000. Hari gym target
   lebih besar dari hari libur. Kalender di layar Lift kasih titik hijau
   (defisit) / oranye (surplus) untuk tiap hari yang makanannya dicatat.
+- **Connector Claude (MCP)** di `/api/mcp/<MCP_SECRET>`: tools search_foods,
+  log_food, add_food, day_summary, delete_food_log, add_day_note, log_steps.
+  Butuh env `MCP_SECRET` (≥32 karakter) di Vercel; tanpa itu endpoint-nya 404.
+  Ganti nilainya untuk mencabut URL lama.
 - **Jalan kaki** dicatat di tabel `daily_activity`, targetnya rata-rata
   6.500 langkah per 7 hari (bukan kuota harian), terpisah dari sesi supaya
   jalan kaki nggak kehitung hari gym di kalender.

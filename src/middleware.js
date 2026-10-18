@@ -17,6 +17,9 @@ const PUBLIC_FILES = new Set([
 function isPublic(pathname) {
   if (pathname.startsWith("/_next")) return true;
   if (pathname.startsWith("/api/auth")) return true;
+  // The Claude connector cannot carry the session cookie; the route checks its
+  // own secret path segment instead (see app/api/mcp/[secret]/route.js).
+  if (pathname.startsWith("/api/mcp/")) return true;
   if (PUBLIC_FILES.has(pathname)) return true;
   // Next generates hashed icon routes (/icon.png, /apple-icon.png).
   if (/^\/(apple-)?icon\.png$/.test(pathname)) return true;
