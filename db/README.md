@@ -45,8 +45,9 @@ Rows whose date is unusable are skipped and counted rather than guessed at.
 
 ## The program
 
-`db/seed-program.sql` holds the current training block: three full-body days
-and one cardio day (intervals, then zone 2), aimed at waist and visceral fat.
+`db/seed-program.sql` holds the current training block: Foundation A/B/C and
+one cardio day, with a Recovery session for after a pain note. Earlier blocks
+live in `db/blocks/` and load the same way when it is time to go back to one.
 Its `target_weight` values are only the starting point for an exercise with
 no history; after that the app progresses the weight from the last session
 (`src/lib/progression.js`). It replaces `programs` and `schedule` wholesale, so it is safe to re-run

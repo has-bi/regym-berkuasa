@@ -162,12 +162,31 @@ export function useWorkoutLog() {
    * Today's session comes from the schedule rather than a rotation guess, so
    * the app opens on whatever the plan actually says.
    */
+  /** Dates with a note tagged Pain / injury — they ease or hold leg and hip loads. */
+  const painDates = useMemo(
+    () => new Set(Object.values(notes).filter((n) => n.tag === "pain").map((n) => n.date)),
+    [notes]
+  );
+
+  /**
+   * The latest pain note from the past week, if any. While there is one, the
+   * Lift screen offers Recovery first instead of the scheduled session.
+   */
+  const recentPain = useMemo(() => {
+    const cutoff = new Date(today + "T00:00:00");
+    cutoff.setDate(cutoff.getDate() - 6);
+    const from = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, "0")}-${String(cutoff.getDate()).padStart(2, "0")}`;
+    const recent = [...painDates].filter((d) => d >= from && d <= today).sort();
+    return recent.length ? notes[recent[recent.length - 1]] : null;
+  }, [painDates, notes, today]);
+
   const suggestedSession = useMemo(() => {
+    if (recentPain && sessions.includes("Recovery")) return "Recovery";
     if (todayPlan.session && !todayPlan.isRest) {
       return todayPlan.session;
     }
     return sessions[0];
-  }, [todayPlan, sessions]);
+  }, [recentPain, todayPlan, sessions]);
 
   useEffect(() => {
     if (!loading && !sessionTouched && !activeSession) {
@@ -317,9 +336,9 @@ export function useWorkoutLog() {
     (exerciseName) => {
       const program = sessionProgram.find((p) => p.exercise_name === exerciseName);
       const exercise = exercises.find((e) => e.name === exerciseName);
-      return nextTarget(program, getLastPerformance(exerciseName)?.sets, exercise);
+      return nextTarget(program, getLastPerformance(exerciseName)?.sets, exercise, { dates: painDates, today });
     },
-    [sessionProgram, exercises, getLastPerformance]
+    [sessionProgram, exercises, getLastPerformance, painDates, today]
   );
 
   /**
@@ -537,6 +556,7 @@ export function useWorkoutLog() {
     calendar,
     getDay,
     saveNote,
+    recentPain,
     warmups,
     cooldowns,
     exercises,

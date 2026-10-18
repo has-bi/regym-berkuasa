@@ -36,10 +36,12 @@ edit / delete semuanya benar.
 
 - **Langkah 1 & 2 sudah selesai.** Schema sudah di Neon, data Sheet sudah
   dimigrasi dan jumlah barisnya cocok (112 / 71 / 44 / 7 / 7).
-- **Program sekarang 3+1** lewat `db/seed-program.sql`: Senin Full Body A ·
-  Rabu Full Body B · Jumat Full Body C · Sabtu Cardio Day; Selasa, Kamis,
-  Minggu libur. Sesi weekday ±60 menit (maks 90). Push/Pull/Legs sempat
-  dipakai 28 Sep – 1 Okt; riwayatnya tetap ada di log.
+- **Program sekarang Foundation block** lewat `db/seed-program.sql` (sejak
+  18 Okt, setelah pinggang kecetit waktu squat): Senin Foundation A · Rabu
+  Foundation B · Jumat Foundation C · Sabtu Cardio Day, plus sesi Recovery
+  yang disarankan seminggu setelah catatan bertag Pain / injury. Full Body
+  disimpan di `db/blocks/full-body.sql` untuk dipakai lagi setelahnya.
+  Sebelumnya: Push/Pull/Legs 28 Sep – 1 Okt, Full Body 1–18 Okt.
 - **Target beban otomatis** dari sesi terakhir (`src/lib/progression.js`);
   angka di `programs.target_weight` cuma titik awal kalau belum ada riwayat.
 - **Tab Food = calorie counter.** Library makanan per porsi di tabel `foods`

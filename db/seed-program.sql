@@ -1,43 +1,34 @@
--- Latihan — training program: 3x full body + 1 cardio day, plus walking
+-- Latihan — Foundation block: recovery, then fundamentals, plus 1 cardio day
 --
 -- Run after db/schema.sql:
 --   psql "$DATABASE_URL" -f db/seed-program.sql
 --
--- Goal: waist circumference and visceral fat. That shapes three choices here.
+-- Why this block: a lower-back tweak on a barbell squat (18 Oct 2026) after
+-- the squat load climbed quickly. The cause was technique plus load, not a
+-- weak core, so the fix is the whole picture: easier variations that teach
+-- the squat and hinge patterns, trunk stability, and slower load increases.
+-- Core work alone would not do it, and would not move waist fat either.
 --
--- Full body three times a week, not a split. At three sessions the squat,
--- hinge, push and pull patterns each get trained three times instead of once,
--- which is what drives progress at entry-level loads.
+--   Recovery     while the back still hurts (typically 1-2 weeks): no loaded
+--                squat, hinge, lunge or bent-over row. Upper body on machines
+--                and cables, the McGill "big three" (curl-up, side plank, bird
+--                dog), glute bridges, easy cycling. Everything pain-free.
+--   Foundation   A/B/C for 3-4 weeks once it is pain-free: goblet box squat,
+--                dumbbell RDL, split squat, chest-supported rows, seated
+--                presses, core three times a week. Leg loads rise at most
+--                2.5 kg a session (src/lib/progression.js); stop ~3 reps
+--                short of failure; film a set from the side now and then.
+--   Cardio Day   unchanged: cycling and treadmill are kind to the back, and
+--                vigorous cardio is what moves visceral fat.
 --
--- Compound lifts carry the session. Nothing targets the waist directly —
--- spot reduction is not a thing — so the abdominal work here is trunk
--- stability, and the fat loss comes from the whole week's energy balance.
---
--- Cardio gets one day of its own, Saturday, with the most time: intervals
--- then zone 2. Vigorous cardio and HIIT rank highest for visceral fat (Chen et
--- al., Obesity Reviews 2024, 84 RCTs). Two lifting days end with a 15-minute
--- zone 2 finisher, and walking covers the rest of the weekly 150 minutes —
--- as a weekly step average, not a daily quota.
---
--- Weekday sessions are mornings with 90 minutes at most, so each lifting day
--- is sized to about an hour including warm-up, finisher and stretches.
---
--- Target weights are the working weight for the next session, set from the
--- last logged sets by double progression: every set at the top of the rep
--- range earns the next increment (+5 kg lower-body barbell, +2.5 kg upper
--- barbell, +2 kg dumbbell, one step on a cable stack); otherwise the weight
--- holds. Last set from the logs on 11 Oct 2026. The app applies the same rule
--- after every session (src/lib/progression.js); these are only the starting
--- point for an exercise with no history.
---
--- Squat is logged as plate weight only, without the bar. Hip Thrust is done
--- with bodyweight and progresses by reps.
+-- The scheduled days are Foundation; Recovery is offered first on the Lift
+-- screen for a week after a note tagged Pain / injury. The full-body block
+-- this replaced is kept in db/blocks/full-body.sql for afterwards.
 --
 -- Safe to re-run, but it resets programs and schedule to exactly what is
--- written here. workout_logs keeps its own session names, so history under
--- earlier programs (Upper/Lower, Push/Pull/Legs) stays readable.
+-- written here. workout_logs keeps its own session names.
 --
--- Week: Full Body A · rest · Full Body B · rest · Full Body C · Cardio Day · rest
+-- Week: Foundation A · rest · Foundation B · rest · Foundation C · Cardio Day · rest
 
 begin;
 
@@ -85,9 +76,19 @@ insert into exercises (name, muscle_group, equipment, cues) values
   ('Stationary Bike',     'Cardio', 'Machine', 'Seat at hip height. Cadence 80–90 rpm, moderate resistance.'),
   ('Rowing Machine',      'Cardio', 'Machine', 'Order: push with the legs → swing the body → pull with the arms. Reverse the order on the way back.'),
   -- Core
+  ('Curl-Up',      'Core', 'Bodyweight', 'McGill curl-up: one knee bent, hands under the small of your back so it keeps its natural curve. Lift head and shoulders a few centimetres as one unit, hold 10 seconds. The spine does not flex.'),
+  ('Side Plank',   'Core', 'Bodyweight', 'Elbow under shoulder, knees bent to start, hips in line with your body. Hold without letting the hips drop or rotate. Straight legs once 30 seconds is easy.'),
+  ('Bird Dog',     'Core', 'Bodyweight', 'On hands and knees, reach one arm and the opposite leg out until level, hold 10 seconds without the back arching or the hips tipping. Small movement, big brace.'),
   ('Plank',        'Core', 'Bodyweight', 'Elbows under shoulders, body in one line from head to heels. Brace your abs and glutes and don''t let your hips sag. Keep breathing.'),
   ('Dead Bug',     'Core', 'Bodyweight', 'Keep your lower back pressed into the floor the whole time — that is the point. Lower opposite arm and leg slowly and stop before your back arches.'),
   ('Pallof Press', 'Core', 'Cable',      'Stand side-on to the cable, press the handle straight out and hold. Resist the pull to rotate; don''t let your torso turn with it. This is anti-rotation work.'),
+  -- Foundation lifts: easier versions that teach the pattern
+  ('Goblet Box Squat',            'Quads',      'Dumbbell',   'Hold one dumbbell at your chest, elbows down. Sit back to a box or bench, touch it lightly, stand up. The box sets the depth, so the back never rounds at the bottom.'),
+  ('Dumbbell Romanian Deadlift',  'Hamstrings', 'Dumbbell',   'Dumbbells against your thighs, soft knees. Push the hips back until you feel the hamstrings, then stand by driving the hips forward. Stop where the back would start to round.'),
+  ('Split Squat',                 'Quads',      'Dumbbell',   'Long stance, back heel up. Drop the back knee straight down toward the floor and push up through the front foot. Start with bodyweight; add dumbbells once 10 per leg is easy.'),
+  ('Chest-Supported Row',         'Back',       'Dumbbell',   'Chest on an incline bench, dumbbells hanging. Row the elbows back to your hips and squeeze the shoulder blades. The bench carries the torso, so the lower back stays out of it.'),
+  ('Seated Dumbbell Press',       'Shoulders',  'Dumbbell',   'Seated with your back against an upright bench. Press the dumbbells overhead without arching away from the pad.'),
+  ('Hip Hinge Drill',             'Warm Up',    'Bodyweight', '10x. A stick along your spine touching head, upper back and tailbone; push the hips back without losing any contact point. Teaches the hinge before any load.'),
   -- Cardio, continued
   ('HIIT Interval', 'Cardio', 'Machine', 'After the warm-up: 30 seconds hard, 90 seconds easy, repeat for 8-10 rounds. Treadmill, bike or rower all work. The hard part has to be genuinely hard.'),
   -- Daily walking, outside sessions
@@ -120,13 +121,13 @@ on conflict (name) do update
 delete from schedule;
 
 insert into schedule (day_of_week, session, notes) values
-  ('Monday',    'Full Body A', 'Squat focus · ~60 min with finisher'),
-  ('Tuesday',   'REST',        'Walk if you feel like it'),
-  ('Wednesday', 'Full Body B', 'Deadlift focus · ~60 min with finisher'),
-  ('Thursday',  'REST',        'Walk if you feel like it'),
-  ('Friday',    'Full Body C', 'Machines & glutes · ~50 min'),
-  ('Saturday',  'Cardio Day',  'Intervals, then zone 2 · ~50 min'),
-  ('Sunday',    'REST',        'A proper day off');
+  ('Monday',    'Foundation A', 'Squat pattern · ~55 min with finisher'),
+  ('Tuesday',   'REST',         'Walk if you feel like it'),
+  ('Wednesday', 'Foundation B', 'Hinge pattern · ~55 min with finisher'),
+  ('Thursday',  'REST',         'Walk if you feel like it'),
+  ('Friday',    'Foundation C', 'Single leg & machines · ~50 min'),
+  ('Saturday',  'Cardio Day',   'Intervals, then zone 2 · ~50 min'),
+  ('Sunday',    'REST',         'A proper day off');
 
 -- Program. Warm-ups sort below zero, main work from 1, cool-downs from 90.
 delete from programs;
@@ -134,50 +135,61 @@ delete from programs;
 insert into programs
   (session, exercise_name, target_sets, target_reps, rest_seconds, target_weight, sort_order) values
 
-  -- Full Body A — squat pattern leads
-  ('Full Body A', 'Jumping Jacks / Brisk Walk',            1, '3 min',            0,   0,   -4),
-  ('Full Body A', 'Leg Swings',                            1, '10x per leg',      0,   0,   -3),
-  ('Full Body A', 'Arm Circles',                           1, '20x each direction', 0, 0,   -2),
-  ('Full Body A', 'Bodyweight Squat (Warm Up)',            1, '15x',              0,   0,   -1),
-  ('Full Body A', 'Squat',                                 3, '8-12',           120,  13,    1),
-  ('Full Body A', 'Bench Press',                           3, '8-12',            90,  40,    2),
-  ('Full Body A', 'Seated Cable Row',                      3, '10-12',           90,  30,    3),
-  ('Full Body A', 'Romanian Deadlift',                     2, '10-12',           90,  30,    4),
-  ('Full Body A', 'Plank',                                 3, '30-45 sec',       60,   0,    5),
-  ('Full Body A', 'Stationary Bike',                       1, '15 min, zone 2',   0,   0,   90),
-  ('Full Body A', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   91),
-  ('Full Body A', 'Quad Stretch',                          1, '30 sec per side',  0,   0,   92),
+  -- Recovery — while the back hurts. Stop anything that hurts.
+  ('Recovery', 'Cat-Cow',                               1, '10x',               0,   0,   -2),
+  ('Recovery', 'Glute Bridge',                          1, '15x',               0,   0,   -1),
+  ('Recovery', 'Stationary Bike',                       1, '15 min, easy',      0,   0,    1),
+  ('Recovery', 'Lat Pulldown',                          3, '10-12',            90,  27,    2),
+  ('Recovery', 'Seated Cable Row',                      3, '10-12',            90,  30,    3),
+  ('Recovery', 'Bench Press',                           3, '8-12',             90,  40,    4),
+  ('Recovery', 'Curl-Up',                               3, '5 x 10 sec hold',  45,   0,    5),
+  ('Recovery', 'Side Plank',                            3, '20-30 sec per side', 45, 0,    6),
+  ('Recovery', 'Bird Dog',                              3, '6 per side, 10 sec hold', 45, 0, 7),
+  ('Recovery', 'Easy Walk / Light Cycling (Cool Down)', 1, '5 min',             0,   0,   90),
 
-  -- Full Body B — hinge pattern leads
-  ('Full Body B', 'Jumping Jacks / Brisk Walk',            1, '3 min',            0,   0,   -4),
-  ('Full Body B', 'Glute Bridge',                          1, '15x',              0,   0,   -3),
-  ('Full Body B', 'Band Pull-Apart',                       1, '15x',              0,   0,   -2),
-  ('Full Body B', 'Cat-Cow',                               1, '10x',              0,   0,   -1),
-  ('Full Body B', 'Deadlift',                              3, '6-8',            150,  45,    1),
-  ('Full Body B', 'Overhead Press',                        3, '8-10',            90,  17.5,  2),
-  ('Full Body B', 'Lat Pulldown',                          3, '10-12',           90,  27,    3),
-  ('Full Body B', 'Walking Lunge',                         2, '12 per leg',      90,  16,    4),
-  ('Full Body B', 'Dead Bug',                              3, '10 per side',     60,   0,    5),
-  ('Full Body B', 'Treadmill',                             1, '15 min incline walk, zone 2', 0, 0, 90),
-  ('Full Body B', 'Hip Flexor Stretch',                    1, '30 sec per side',  0,   0,   91),
-  ('Full Body B', 'Hamstring Stretch',                     1, '30 sec per side',  0,   0,   92),
+  -- Foundation A — squat pattern
+  ('Foundation A', 'Jumping Jacks / Brisk Walk',        1, '3 min',             0,   0,   -4),
+  ('Foundation A', 'Cat-Cow',                           1, '10x',               0,   0,   -3),
+  ('Foundation A', 'Bodyweight Squat (Warm Up)',        1, '15x',               0,   0,   -2),
+  ('Foundation A', 'Glute Bridge',                      1, '15x',               0,   0,   -1),
+  ('Foundation A', 'Goblet Box Squat',                  3, '8-10',             90,  10,    1),
+  ('Foundation A', 'Bench Press',                       3, '8-12',             90,  40,    2),
+  ('Foundation A', 'Seated Cable Row',                  3, '10-12',            90,  30,    3),
+  ('Foundation A', 'Curl-Up',                           3, '5 x 10 sec hold',  45,   0,    4),
+  ('Foundation A', 'Side Plank',                        3, '20-30 sec per side', 45, 0,    5),
+  ('Foundation A', 'Stationary Bike',                   1, '15 min, zone 2',    0,   0,   90),
+  ('Foundation A', 'Hamstring Stretch',                 1, '30 sec per side',   0,   0,   91),
+  ('Foundation A', 'Quad Stretch',                      1, '30 sec per side',   0,   0,   92),
 
-  -- Full Body C — machines and glutes, easiest to push load on
-  ('Full Body C', 'Jumping Jacks / Brisk Walk',            1, '3 min',            0,   0,   -4),
-  ('Full Body C', 'Hip Circles',                           1, '10x each direction', 0, 0,   -3),
-  ('Full Body C', 'Scapular Push-Up',                      1, '10x',              0,   0,   -2),
-  ('Full Body C', 'Arm Circles',                           1, '20x each direction', 0, 0,   -1),
-  ('Full Body C', 'Leg Press',                             3, '10-15',           90,  45,    1),
-  ('Full Body C', 'Incline DB Press',                      3, '10-12',           90,  20,    2),
-  ('Full Body C', 'Bent Over Row',                         3, '8-12',            90,  25,    3),
-  ('Full Body C', 'Hip Thrust',                            3, '10-15',           90,   0,    4),
-  ('Full Body C', 'Pallof Press',                          3, '12 per side',     60,  10,    5),
-  ('Full Body C', 'Quad Stretch',                          1, '30 sec per side',  0,   0,   90),
-  ('Full Body C', 'Child''s Pose / Cat-Cow (Cool Down)',   1, '1 min',            0,   0,   91),
+  -- Foundation B — hinge pattern
+  ('Foundation B', 'Jumping Jacks / Brisk Walk',        1, '3 min',             0,   0,   -4),
+  ('Foundation B', 'Cat-Cow',                           1, '10x',               0,   0,   -3),
+  ('Foundation B', 'Hip Hinge Drill',                   1, '10x',               0,   0,   -2),
+  ('Foundation B', 'Glute Bridge',                      1, '15x',               0,   0,   -1),
+  ('Foundation B', 'Dumbbell Romanian Deadlift',        3, '10-12',            90,  10,    1),
+  ('Foundation B', 'Seated Dumbbell Press',             3, '8-10',             90,   8,    2),
+  ('Foundation B', 'Lat Pulldown',                      3, '10-12',            90,  27,    3),
+  ('Foundation B', 'Hip Thrust',                        3, '12-15',            60,   0,    4),
+  ('Foundation B', 'Bird Dog',                          3, '6 per side, 10 sec hold', 45, 0, 5),
+  ('Foundation B', 'Treadmill',                         1, '15 min incline walk, zone 2', 0, 0, 90),
+  ('Foundation B', 'Hip Flexor Stretch',                1, '30 sec per side',   0,   0,   91),
+  ('Foundation B', 'Hamstring Stretch',                 1, '30 sec per side',   0,   0,   92),
 
-  -- Cardio Day — Saturday, the one session built around cardio.
-  -- Intervals first while fresh, then steady zone 2. Start at 6 rounds for the
-  -- first two weeks and build to 10. Log rounds and minutes as reps.
+  -- Foundation C — single leg and machines
+  ('Foundation C', 'Jumping Jacks / Brisk Walk',        1, '3 min',             0,   0,   -4),
+  ('Foundation C', 'Hip Circles',                       1, '10x each direction', 0,  0,   -3),
+  ('Foundation C', 'Scapular Push-Up',                  1, '10x',               0,   0,   -2),
+  ('Foundation C', 'Glute Bridge',                      1, '15x',               0,   0,   -1),
+  ('Foundation C', 'Split Squat',                       3, '8-10 per leg',     90,   0,    1),
+  ('Foundation C', 'Leg Press',                         3, '12-15',            90,  35,    2),
+  ('Foundation C', 'Incline DB Press',                  3, '10-12',            90,  20,    3),
+  ('Foundation C', 'Chest-Supported Row',               3, '10-12',            90,  12,    4),
+  ('Foundation C', 'Pallof Press',                      3, '12 per side',      60,  10,    5),
+  ('Foundation C', 'Dead Bug',                          3, '10 per side',      45,   0,    6),
+  ('Foundation C', 'Quad Stretch',                      1, '30 sec per side',   0,   0,   90),
+  ('Foundation C', 'Child''s Pose / Cat-Cow (Cool Down)', 1, '1 min',           0,   0,   91),
+
+  -- Cardio Day — unchanged
   ('Cardio Day', 'Jumping Jacks / Brisk Walk',             1, '5 min',            0,   0,   -1),
   ('Cardio Day', 'HIIT Interval',                          1, '6-10 rounds: 30s hard / 90s easy', 0, 0, 1),
   ('Cardio Day', 'Treadmill',                              1, '20-25 min, zone 2', 0,  0,    2),

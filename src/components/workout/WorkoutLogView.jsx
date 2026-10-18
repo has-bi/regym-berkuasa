@@ -161,6 +161,11 @@ function ExerciseCard({
               {programInfo?.increased && (
                 <span className="text-emerald-700 font-medium"> ↑</span>
               )}
+              {programInfo?.adjusted && (
+                <span className="text-amber-700 font-medium">
+                  {programInfo.adjusted === "eased" ? " ↓ eased for pain" : " · held for pain"}
+                </span>
+              )}
               {programInfo?.rest_seconds > 0 && (
                 <span className="text-ink-faint"> · {programInfo.rest_seconds}s rest</span>
               )}
@@ -239,7 +244,7 @@ export default function WorkoutLogView() {
   const {
     loading, error, today, activeSession, setActiveSession, suggestedSession,
     todayByExercise, todayExerciseNames, sessionProgram, sessionProgress,
-    sessions, todayPlan, trainedToday, calendar, getDay, saveNote, warmups, cooldowns,
+    sessions, todayPlan, trainedToday, calendar, getDay, saveNote, recentPain, warmups, cooldowns,
     stepsToday, weekSteps, saveSteps,
     todaySessionSets, priorSessionSets, todayPrCount,
     exercises, recentSessions,
@@ -263,7 +268,7 @@ export default function WorkoutLogView() {
     const p = sessionProgram.find((row) => row.exercise_name === name);
     if (!p) return null;
     const next = getNextTarget(name);
-    return { ...p, target_weight: next.weight, increased: next.increased };
+    return { ...p, target_weight: next.weight, increased: next.increased, adjusted: next.adjusted };
   };
 
   /** First set of the day starts at the target; later sets follow the last one logged. */
@@ -345,7 +350,15 @@ export default function WorkoutLogView() {
           )}
         </div>
 
-        {todayPlan.isRest && (
+        {recentPain && (
+          <p className="text-xs text-amber-800 bg-amber-50 rounded-lg px-2.5 py-2 mb-2 leading-snug">
+            Pain noted on{" "}
+            {new Date(recentPain.date + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+            {" "}— Recovery is suggested for a week, and leg loads are eased. Pick a Foundation day once
+            it moves pain-free.
+          </p>
+        )}
+        {todayPlan.isRest && !recentPain && (
           <p className="text-xs text-ink-muted mb-2">
             Today&rsquo;s a rest day — but if you feel like lifting, just pick one.
           </p>
