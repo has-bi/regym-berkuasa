@@ -104,7 +104,8 @@ export async function fetchBundle() {
         -- table grows by several rows a day where the others grow by a few a week.
         'foodLogs',    (select coalesce(json_agg(l order by l.date, l.created_at), '[]'::json)
                           from food_logs l where l.date >= current_date - 60),
-        'settings',    (select coalesce(json_object_agg(s.key, s.value), '{}'::json) from settings s)
+        'settings',    (select coalesce(json_object_agg(s.key, s.value), '{}'::json) from settings s),
+        'dayNotes',    (select coalesce(json_agg(n order by n.date), '[]'::json) from day_notes n)
       ) as bundle`;
     return rows[0].bundle;
   } catch (err) {
@@ -295,6 +296,24 @@ export async function setSetting(key, value) {
       insert into settings (key, value) values (${key}, ${JSON.stringify(value)}::jsonb)
       on conflict (key) do update set value = excluded.value, updated_at = now()`;
     return { ok: true };
+  } catch (err) {
+    throw wrap(err);
+  }
+}
+
+/** Writes a day's note; an empty note and no tag removes it instead of storing a blank. */
+export async function setDayNote({ date, tag = "", note = "" }) {
+  const sql = client();
+  try {
+    if (!String(tag).trim() && !String(note).trim()) {
+      await sql`delete from day_notes where date = ${date}`;
+      return { date, deleted: true };
+    }
+    const rows = await sql`
+      insert into day_notes (date, tag, note) values (${date}, ${tag}, ${note})
+      on conflict (date) do update set tag = excluded.tag, note = excluded.note, updated_at = now()
+      returning date::text, tag, note`;
+    return rows[0];
   } catch (err) {
     throw wrap(err);
   }

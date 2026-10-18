@@ -66,8 +66,10 @@ export function getPlanFor(dateStr, scheduleMap) {
  * With an energy model (lib/energy.js), each past day that has food logged
  * also gets `deficit`: true when it burned more than was eaten. Today is left
  * out until it is over — a half-eaten day always looks like a deficit.
+ *
+ * `notes` (keyed by date) marks the days that carry a note.
  */
-export function monthCalendar(logs, scheduleMap, todayStr, energy = null) {
+export function monthCalendar(logs, scheduleMap, todayStr, energy = null, notes = {}) {
   const trained = new Set((logs || []).map((l) => l.date).filter(Boolean));
   const today = parseDateStr(todayStr);
   const year = today.getFullYear();
@@ -108,7 +110,10 @@ export function monthCalendar(logs, scheduleMap, todayStr, energy = null) {
     if (deficit) deficitDays += 1;
     if (deficit === false) surplusDays += 1;
 
-    cells.push({ date, day: d, isToday, status, session: plan.isRest ? "" : plan.session, deficit, balance });
+    cells.push({
+      date, day: d, isToday, status, session: plan.isRest ? "" : plan.session,
+      deficit, balance, note: notes[date] ?? null,
+    });
   }
   while (cells.length % 7) cells.push(null);
 

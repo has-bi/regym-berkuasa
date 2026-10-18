@@ -1,5 +1,9 @@
 "use client";
 import { DAY_SHORT } from "@/lib/schedule";
+import { NOTE_TAGS } from "./DaySheet";
+import { FiEdit3 } from "react-icons/fi";
+
+const TAG_LABEL = Object.fromEntries(NOTE_TAGS.map((t) => [t.key, t.label]));
 
 /** Monday-first column headers. */
 const HEADERS = [1, 2, 3, 4, 5, 6, 0].map((i) => DAY_SHORT[i]);
@@ -46,7 +50,10 @@ function balanceTitle(c) {
  * This month at a glance: which days were gym days and which were not.
  * Today's plan sits above it, since that is what the screen is opened for.
  */
-export default function MonthCard({ calendar, todayPlan, trainedToday }) {
+export default function MonthCard({ calendar, todayPlan, trainedToday, onSelectDay }) {
+  const todayCell = calendar.cells.find((c) => c?.isToday);
+  const todayNote = todayCell?.note;
+
   const headline = todayPlan?.isRest
     ? "Rest day"
     : trainedToday
@@ -67,6 +74,20 @@ export default function MonthCard({ calendar, todayPlan, trainedToday }) {
           </p>
           {todayPlan?.notes && (
             <p className="text-xs text-ink-faint mt-0.5 line-clamp-2 leading-snug">{todayPlan.notes}</p>
+          )}
+          {/* Today's note, or the way to add one — same sheet as tapping the date */}
+          {todayCell && (
+            <button
+              onClick={() => onSelectDay(todayCell.date)}
+              className="mt-1.5 text-xs text-left text-sky-700 hover:text-sky-900 inline-flex items-start gap-1"
+            >
+              <FiEdit3 size={11} className="shrink-0 mt-0.5" />
+              <span className="line-clamp-2">
+                {todayNote
+                  ? [TAG_LABEL[todayNote.tag], todayNote.note].filter(Boolean).join(" — ")
+                  : "Add a note"}
+              </span>
+            </button>
           )}
         </div>
         <div className="text-right shrink-0">
@@ -92,14 +113,21 @@ export default function MonthCard({ calendar, todayPlan, trainedToday }) {
         ))}
         {calendar.cells.map((c, i) =>
           c ? (
-            <div key={c.date} className="flex flex-col items-center gap-0.5">
+            <button
+              key={c.date}
+              onClick={() => onSelectDay(c.date)}
+              aria-label={`${c.day}: ${c.session ? `${c.session}, ` : ""}${LABEL[c.status]}${balanceTitle(c)}${c.note ? ", has a note" : ""}`}
+              className="flex flex-col items-center gap-0.5 rounded-lg py-0.5 hover:bg-surface-raised/60"
+            >
               <span
-                title={`${c.day}: ${c.session ? `${c.session} — ` : ""}${LABEL[c.status]}${balanceTitle(c)}`}
-                className={`h-8 w-8 rounded-full flex items-center justify-center text-xs tabular ${
+                className={`relative h-8 w-8 rounded-full flex items-center justify-center text-xs tabular ${
                   CELL[c.status]
                 } ${c.isToday && c.status === "done" ? "ring-2 ring-offset-2 ring-ink/20" : ""}`}
               >
                 {c.day}
+                {c.note && (
+                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-sky-500 ring-2 ring-surface" />
+                )}
               </span>
               {/* Always rendered so rows keep the same height with or without food data */}
               <span
@@ -107,7 +135,7 @@ export default function MonthCard({ calendar, todayPlan, trainedToday }) {
                   c.deficit === true ? "bg-emerald-500" : c.deficit === false ? "bg-amber-500" : "bg-transparent"
                 }`}
               />
-            </div>
+            </button>
           ) : (
             <span key={`pad-${i}`} />
           )
@@ -121,6 +149,10 @@ export default function MonthCard({ calendar, todayPlan, trainedToday }) {
             {l.label}
           </span>
         ))}
+        <span className="inline-flex items-center gap-1.5 text-[11px] text-ink-muted">
+          <span className="h-2 w-2 rounded-full bg-sky-500" />
+          Note
+        </span>
         {BALANCE_LEGEND.map((l) => (
           <span key={l.label} className="inline-flex items-center gap-1.5 text-[11px] text-ink-muted">
             <span className={`h-1.5 w-1.5 rounded-full ${l.swatch}`} />

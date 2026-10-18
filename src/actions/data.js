@@ -120,6 +120,7 @@ export function deserializeBundle(b) {
     foods: (b.foods || []).map(deserializeFood),
     foodLogs: (b.foodLogs || []).map(deserializeFoodLog),
     settings: b.settings || {},
+    dayNotes: (b.dayNotes || []).map((n) => ({ ...n, date: String(n.date).slice(0, 10) })),
   };
 }
 
@@ -145,4 +146,8 @@ export const foodApi = {
   log: (payload) => request("/api/data/food", { action: "log", payload }),
   deleteLog: (id) => request("/api/data/food", { action: "deleteLog", id }),
   setProfile: (payload) => request("/api/data/food", { action: "setSetting", key: "profile", payload }),
+};
+
+export const notesApi = {
+  set: (payload) => request("/api/data/notes", { action: "set", payload }),
 };

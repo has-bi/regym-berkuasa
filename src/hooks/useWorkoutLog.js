@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { workoutApi, activityApi, fetchBundle, deserializeBundle } from "@/actions/data";
+import { workoutApi, activityApi, notesApi, fetchBundle, deserializeBundle } from "@/actions/data";
 import { buildScheduleMap, getPlanFor, monthCalendar, DAY_NAMES } from "@/lib/schedule";
 import { nextTarget } from "@/lib/progression";
 import { energyModel } from "@/lib/energy";
@@ -37,6 +37,7 @@ export function useWorkoutLog() {
   const [activity, setActivity] = useState([]);
   // For the calendar's deficit dots: what was eaten, and what it is measured against.
   const [nutrition, setNutrition] = useState({ foodLogs: [], profile: null, metric: null });
+  const [notes, setNotes] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSession, setActiveSession] = useState(null);
@@ -58,6 +59,7 @@ export function useWorkoutLog() {
         profile: bundle.settings.profile ?? null,
         metric: [...bundle.bodyMetrics].sort((a, b) => b.date.localeCompare(a.date))[0] ?? null,
       });
+      setNotes(Object.fromEntries(bundle.dayNotes.map((n) => [n.date, n])));
       setError(null);
 
       const todayLogs = bundle.workoutLogs.filter((l) => l.date === today);
@@ -88,8 +90,51 @@ export function useWorkoutLog() {
   );
 
   const calendar = useMemo(
-    () => monthCalendar(logs, scheduleMap, today, energy),
-    [logs, scheduleMap, today, energy]
+    () => monthCalendar(logs, scheduleMap, today, energy, notes),
+    [logs, scheduleMap, today, energy, notes]
+  );
+
+  /**
+   * Everything the day sheet shows for one date: the plan, what was logged,
+   * the energy balance and the note.
+   */
+  const getDay = useCallback(
+    (date) => {
+      const sets = logs.filter((l) => l.date === date);
+      const byExercise = {};
+      sets.forEach((s) => (byExercise[s.exercise_name] ||= []).push(s));
+      return {
+        date,
+        plan: getPlanFor(date, scheduleMap),
+        sessions: [...new Set(sets.map((s) => s.session))],
+        exercises: Object.entries(byExercise).map(([name, list]) => ({ name, sets: list })),
+        energy: energy ? energy(date) : null,
+        note: notes[date] ?? null,
+      };
+    },
+    [logs, scheduleMap, energy, notes]
+  );
+
+  /** Optimistic; an empty note clears the day. */
+  const saveNote = useCallback(
+    async (date, { tag, note }) => {
+      const before = notes;
+      const empty = !tag && !note.trim();
+      setNotes((prev) => {
+        const next = { ...prev };
+        if (empty) delete next[date];
+        else next[date] = { date, tag, note };
+        return next;
+      });
+      try {
+        await notesApi.set({ date, tag, note });
+      } catch (err) {
+        setNotes(before);
+        setError(err.message);
+        throw err;
+      }
+    },
+    [notes]
   );
 
   /** Scheduled sessions, Monday first — sets the order of the session picker. */
@@ -490,6 +535,8 @@ export function useWorkoutLog() {
     todayPlan,
     trainedToday,
     calendar,
+    getDay,
+    saveNote,
     warmups,
     cooldowns,
     exercises,

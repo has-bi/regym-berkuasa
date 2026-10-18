@@ -151,3 +151,15 @@ create table if not exists settings (
   value      jsonb not null,
   updated_at timestamptz not null default now()
 );
+
+-- One note per day: why a session was missed, cut short, or how it went.
+--
+-- Keyed on the date, not on a session, because the days that most need a
+-- note are the ones with no session at all. `tag` is an optional quick reason
+-- (pain, sick, no-time, low-energy, cut-short, strong) for scanning the month.
+create table if not exists day_notes (
+  date       date primary key,
+  tag        text not null default '',
+  note       text not null default '',
+  updated_at timestamptz not null default now()
+);

@@ -6,6 +6,7 @@ import SetInputModal from "./SetInputModal";
 import ExercisePicker from "./ExercisePicker";
 import RestTimerBar from "./RestTimerBar";
 import MonthCard from "./MonthCard";
+import DaySheet from "./DaySheet";
 import WalkCard from "./WalkCard";
 import Checklist from "./Checklist";
 import TutorialSheet from "./TutorialSheet";
@@ -238,7 +239,7 @@ export default function WorkoutLogView() {
   const {
     loading, error, today, activeSession, setActiveSession, suggestedSession,
     todayByExercise, todayExerciseNames, sessionProgram, sessionProgress,
-    sessions, todayPlan, trainedToday, calendar, warmups, cooldowns,
+    sessions, todayPlan, trainedToday, calendar, getDay, saveNote, warmups, cooldowns,
     stepsToday, weekSteps, saveSteps,
     todaySessionSets, priorSessionSets, todayPrCount,
     exercises, recentSessions,
@@ -252,6 +253,7 @@ export default function WorkoutLogView() {
   const [showSummary, setShowSummary] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [tutorialFor, setTutorialFor] = useState(null);
+  const [selectedDay, setSelectedDay] = useState(null);
 
   /**
    * The program row with today's working weight in place of the fixed one, so
@@ -323,7 +325,7 @@ export default function WorkoutLogView() {
       )}
 
       {/* Today's plan + this month: gym days, rest days, misses */}
-      <MonthCard calendar={calendar} todayPlan={todayPlan} trainedToday={trainedToday} />
+      <MonthCard calendar={calendar} todayPlan={todayPlan} trainedToday={trainedToday} onSelectDay={setSelectedDay} />
 
       {/* Walking is tracked apart from sessions — see WalkCard */}
       <WalkCard today={today} steps={stepsToday} weekSteps={weekSteps} onSave={saveSteps} />
@@ -557,6 +559,10 @@ export default function WorkoutLogView() {
           programInfo={planFor(tutorialFor)}
           onClose={() => setTutorialFor(null)}
         />
+      )}
+
+      {selectedDay && (
+        <DaySheet day={getDay(selectedDay)} onSave={saveNote} onClose={() => setSelectedDay(null)} />
       )}
 
       {timer.active && (
