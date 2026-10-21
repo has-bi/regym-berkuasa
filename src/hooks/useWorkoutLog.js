@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { workoutApi, activityApi, notesApi, fetchBundle, deserializeBundle } from "@/actions/data";
 import { buildScheduleMap, getPlanFor, monthCalendar, DAY_NAMES } from "@/lib/schedule";
 import { nextTarget } from "@/lib/progression";
-import { energyModel } from "@/lib/energy";
+import { energyModel, recentBalance } from "@/lib/energy";
 
 /** Fallback only — the real list comes from whatever sessions the data defines. */
 export const SESSIONS = ["Full Body A", "Full Body B", "Full Body C", "Cardio", "HIIT"];
@@ -88,6 +88,13 @@ export function useWorkoutLog() {
     () => energyModel({ ...nutrition, workoutLogs: logs, programs, exercises, activity }),
     [nutrition, logs, programs, exercises, activity]
   );
+
+  /** Today's in-vs-out so far, counting the scheduled session until one is logged. */
+  const todayEnergy = useMemo(
+    () => (energy ? energy(today, todayPlan.isRest ? "" : todayPlan.session) : null),
+    [energy, today, todayPlan]
+  );
+  const weekEnergy = useMemo(() => recentBalance(energy, today), [energy, today]);
 
   const calendar = useMemo(
     () => monthCalendar(logs, scheduleMap, today, energy, notes),
@@ -554,6 +561,8 @@ export function useWorkoutLog() {
     todayPlan,
     trainedToday,
     calendar,
+    todayEnergy,
+    weekEnergy,
     getDay,
     saveNote,
     recentPain,

@@ -11,7 +11,7 @@ import {
   fetchBundle, addFood, addFoodLog, deleteFoodLog, setDayNote, setDailyActivity, foodLogsOn,
 } from "@/lib/db";
 import { deserializeBundle } from "@/actions/data";
-import { energyModel } from "@/lib/energy";
+import { energyModel, recentBalance } from "@/lib/energy";
 import { targetsFor } from "@/lib/nutrition";
 import { buildScheduleMap, getPlanFor } from "@/lib/schedule";
 
@@ -96,6 +96,8 @@ function summarise(bundle, date) {
   out.remaining_kcal = target.kcal - eaten.kcal;
   out.remaining_protein = r1(target.protein - eaten.protein);
   out.balance_vs_burn = day.burn - eaten.kcal; // positive = deficit
+  // Complete days only (today excluded); kg uses the rough 7,700 kcal per kg of fat.
+  out.last_7_days = recentBalance(energy, localToday());
   return out;
 }
 
@@ -202,7 +204,7 @@ export const TOOLS = [
   {
     name: "day_summary",
     description:
-      "The day's calories and macros against the user's target. The target is that day's estimated burn (resting + logged workout + steps) minus 500 kcal. Lists each entry with its entry_id. Defaults to today.",
+      "The day's calories and macros against the user's target. The target is that day's estimated burn (resting + logged workout + steps) minus 500 kcal; balance_vs_burn is burn minus eaten (positive = deficit). last_7_days sums the deficit over the previous complete days with food logged, with a rough kg-of-fat equivalent. Lists each entry with its entry_id. Defaults to today.",
     inputSchema: {
       type: "object",
       properties: { date: { type: "string", description: "YYYY-MM-DD. Default: today." } },

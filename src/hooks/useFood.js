@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { foodApi, fetchBundle, deserializeBundle } from "@/actions/data";
 import { targetsFor } from "@/lib/nutrition";
-import { energyModel } from "@/lib/energy";
+import { energyModel, recentBalance } from "@/lib/energy";
 import { toDateStr, buildScheduleMap, getPlanFor } from "@/lib/schedule";
 
 const ZERO = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
@@ -76,6 +76,9 @@ export function useFood() {
     const plan = date === today ? getPlanFor(date, buildScheduleMap(training.schedule)) : null;
     return energy(date, plan && !plan.isRest ? plan.session : "");
   }, [energy, date, today, training.schedule]);
+
+  /** The last seven complete days, for the balance card's week line. */
+  const week = useMemo(() => recentBalance(energy, today), [energy, today]);
 
   const targets = useMemo(
     () => (day ? { ...targetsFor(day.burn, { sex: profile.sex, weight: latestMetric.weight }), burn: day } : null),
@@ -165,7 +168,7 @@ export function useFood() {
 
   return {
     loading, error, today, date, setDate,
-    foods: sortedFoods, dayLogs, totals, targets, profile, latestMetric,
+    foods: sortedFoods, dayLogs, totals, targets, profile, latestMetric, day, week,
     logFood, deleteLog, saveFood, deleteFood, saveProfile,
   };
 }

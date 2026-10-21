@@ -7,6 +7,7 @@ import ExercisePicker from "./ExercisePicker";
 import RestTimerBar from "./RestTimerBar";
 import MonthCard from "./MonthCard";
 import DaySheet from "./DaySheet";
+import EnergyCard from "@/components/energy/EnergyCard";
 import WalkCard from "./WalkCard";
 import Checklist from "./Checklist";
 import TutorialSheet from "./TutorialSheet";
@@ -244,7 +245,7 @@ export default function WorkoutLogView() {
   const {
     loading, error, today, activeSession, setActiveSession, suggestedSession,
     todayByExercise, todayExerciseNames, sessionProgram, sessionProgress,
-    sessions, todayPlan, trainedToday, calendar, getDay, saveNote, recentPain, warmups, cooldowns,
+    sessions, todayPlan, trainedToday, calendar, getDay, saveNote, recentPain, todayEnergy, weekEnergy, warmups, cooldowns,
     stepsToday, weekSteps, saveSteps,
     todaySessionSets, priorSessionSets, todayPrCount,
     exercises, recentSessions,
@@ -331,6 +332,9 @@ export default function WorkoutLogView() {
 
       {/* Today's plan + this month: gym days, rest days, misses */}
       <MonthCard calendar={calendar} todayPlan={todayPlan} trainedToday={trainedToday} onSelectDay={setSelectedDay} />
+
+      {/* Food in vs everything burned, today and over the past week */}
+      <EnergyCard day={todayEnergy} isToday week={weekEnergy} />
 
       {/* Walking is tracked apart from sessions — see WalkCard */}
       <WalkCard today={today} steps={stepsToday} weekSteps={weekSteps} onSave={saveSteps} />

@@ -105,3 +105,36 @@ export function energyModel({ profile, metric, workoutLogs, programs, exercises,
     };
   };
 }
+
+/** Rough rule of thumb: about 7,700 kcal of deficit per kilogram of body fat. */
+export const KCAL_PER_KG_FAT = 7700;
+
+/**
+ * The energy balance over the `days` complete days before `todayStr` that have
+ * food logged. Today is left out: a day still being eaten always looks like a
+ * deficit. Days without food entries are skipped rather than counted as zero.
+ *
+ * @param forDate the function returned by energyModel
+ */
+export function recentBalance(forDate, todayStr, days = 7) {
+  if (!forDate) return null;
+  const base = new Date(todayStr + "T00:00:00");
+  let total = 0;
+  let logged = 0;
+  for (let i = 1; i <= days; i++) {
+    const d = new Date(base);
+    d.setDate(d.getDate() - i);
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const e = forDate(date);
+    if (!e.hasFood) continue;
+    total += e.balance;
+    logged += 1;
+  }
+  return {
+    days,
+    logged,
+    total: Math.round(total),
+    perDay: logged ? Math.round(total / logged) : 0,
+    kg: Math.round((total / KCAL_PER_KG_FAT) * 100) / 100,
+  };
+}
