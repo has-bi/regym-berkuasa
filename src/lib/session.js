@@ -12,8 +12,19 @@
 
 const ENCODER = new TextEncoder();
 
-/** Session lifetime. Long by design: a phone-installed personal app. */
-export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+/**
+ * Session lifetime. A year, because this is a personal app installed on one
+ * phone and re-entering the PIN every month is pure friction.
+ *
+ * Not longer: Chrome clamps any cookie expiry past 400 days, so a bigger
+ * number here would make the token outlive the cookie that carries it and the
+ * app would log out early anyway. A year sits safely under that ceiling.
+ *
+ * The trade-off is that a lost phone stays signed in for a year. Rotating
+ * SESSION_SECRET or AUTH_PIN_HASH revokes every session at once, which is the
+ * lever to pull if that happens.
+ */
+export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 /**
  * `__Host-` locks the cookie to this exact origin with no subdomain scope,
